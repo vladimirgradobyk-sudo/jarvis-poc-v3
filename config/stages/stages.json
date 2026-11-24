@@ -1,0 +1,29 @@
+{
+  "_comment": "The 11 canonical PDLC stages. design-system.md §8.1: these are canonical and drive StageRail. The 7-chip lifecycle row on the landing screen is an orientation summary only, derived from lifecycleGroup below, and is not interactive. The pilot's 5-chip rail is retired.",
+
+  "lifecycleSummary": [
+    { "id": "idea",         "label": "Idea" },
+    { "id": "requirements", "label": "Requirements" },
+    { "id": "design",       "label": "Design" },
+    { "id": "code",         "label": "Code" },
+    { "id": "test",         "label": "Test" },
+    { "id": "deploy",       "label": "Deploy" },
+    { "id": "monitor",      "label": "Monitor" }
+  ],
+
+  "stages": [
+    { "id": "idea-vetting",        "ordinal": 1,  "name": "Idea Vetting",           "lifecycleGroup": "idea",         "agents": ["product"],              "purpose": "Establish whether an idea is worth pursuing and capture it as a vetted artifact." },
+    { "id": "idea-hlis",           "ordinal": 2,  "name": "JPD Idea / HLIS",        "lifecycleGroup": "idea",         "agents": [],                       "purpose": "Register the idea for discovery and size it at high level." },
+    { "id": "prioritization",      "ordinal": 3,  "name": "Prioritization",         "lifecycleGroup": "idea",         "agents": [],                       "purpose": "Rank the idea against the portfolio." },
+    { "id": "requirement-lock",    "ordinal": 4,  "name": "Requirement Lock",       "lifecycleGroup": "requirements", "agents": ["product"],              "purpose": "Fix the scope and the acceptance criteria." },
+    { "id": "solution-lock",       "ordinal": 5,  "name": "Solution Lock",          "lifecycleGroup": "design",       "agents": ["architect"],            "purpose": "Agree the high-level design and the non-functional envelope." },
+    { "id": "user-experience",     "ordinal": 6,  "name": "User Experience",        "lifecycleGroup": "design",       "agents": [],                       "purpose": "Design the interaction and the visual system." },
+    { "id": "lld-stories",         "ordinal": 7,  "name": "LLD & Stories",          "lifecycleGroup": "design",       "agents": ["architect", "product"],  "purpose": "Elaborate the design to implementation detail and decompose into stories." },
+    { "id": "development",         "ordinal": 8,  "name": "Development",            "lifecycleGroup": "code",         "agents": ["developer"],            "purpose": "Implement the stories and review the changes." },
+    { "id": "testing",             "ordinal": 9,  "name": "Testing",                "lifecycleGroup": "test",         "agents": [],                       "purpose": "Assess testability and execute the test strategy." },
+    { "id": "deployment",          "ordinal": 10, "name": "Deployment",             "lifecycleGroup": "deploy",       "agents": [],                       "purpose": "Release the change through change management. Never performed by an agent (DEC-28)." },
+    { "id": "release-run-support", "ordinal": 11, "name": "Release & Run Support",  "lifecycleGroup": "monitor",      "agents": [],                       "purpose": "Operate, monitor and report on the released change." }
+  ],
+
+  "_emptyStageNote": "A stage with no agents renders as 'Available in a later release' and is not selectable (screen-specs §1.4.3). The PoC enables 4 of 11 stages; the rail still shows all 11 because stage completion is a property of the epic (FR-NAV-009)."
+}

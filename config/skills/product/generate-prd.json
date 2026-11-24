@@ -1,0 +1,45 @@
+{
+  "id": "generate-prd",
+  "name": "Generate PRD",
+  "description": "Produce a Product Requirement Document for an epic from an idea source and supporting material.",
+  "agent": "product",
+  "subAgent": "product-manager",
+  "stages": ["idea-vetting", "requirement-lock"],
+  "outputType": "document",
+  "synonyms": ["prd", "product requirements", "vetting", "product brief", "requirements document"],
+  "estimatedDurationSeconds": 240,
+  "status": "active",
+  "requiresScorecard": true,
+  "template": "prd",
+  "publishTargets": ["confluence_page"],
+  "contextMethods": ["conversation", "materials", "source_file"],
+
+  "council": {
+    "artifactKind": "document",
+    "phases": ["configure", "generate", "review", "compare", "adjudicate", "publish"],
+    "writers": { "min": 1, "max": 5, "default": 1, "requireDistinctModels": true,
+                 "rosterFile": "document-writers", "roster": ["pm-writer-1", "pm-writer-2", "pm-writer-3"] },
+    "captain": "document-captain",
+    "rubric": "document",
+    "synthesis": { "enabled": true, "maxSuggestions": 5 },
+    "budget": { "maxTokensPerWriter": 200000, "maxWallClockSeconds": 900 },
+    "qualityThreshold": 80
+  },
+
+  "inputs": [
+    { "id": "ideaSource", "label": "Idea Source", "type": "text", "required": true,
+      "placeholder": "A one-line statement of the idea, or a path to the idea source file",
+      "help": "The council has no source material without it." },
+    { "id": "supportingMaterial", "label": "Supporting Material", "type": "textarea", "required": false,
+      "placeholder": "Paste any relevant text — PRD excerpts, email threads, customer feedback, meeting notes..." },
+    { "id": "referenceDocuments", "label": "Reference Documents", "type": "textarea", "required": false,
+      "placeholder": "Local file paths or Confluence URLs, one per line" },
+    { "id": "epicUrl", "label": "Epic URL (Traceability ID)", "type": "jira_key", "required": true,
+      "placeholder": "MCSE-731",
+      "help": "Anchors this document in the epic's traceability graph." },
+    { "id": "confluencePublishUrl", "label": "Confluence Publish Target", "type": "url", "required": false,
+      "placeholder": "Leave empty to choose at publish time" }
+  ],
+
+  "promptRef": "skills/generate-prd.v1.md"
+}

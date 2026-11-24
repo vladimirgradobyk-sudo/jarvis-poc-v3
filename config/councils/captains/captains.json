@@ -1,0 +1,37 @@
+{
+  "_comment": "design-system.md §9 rule 5: Captains do NOT carry invented human names. The pilot's 'Priya Sharma' and 'Maya Iyer' are replaced by role identity. A fictional person with a real-sounding name implying authorship of an enterprise artifact is a provenance hazard. The persona tag is retained as a configurable descriptor.",
+
+  "profiles": [
+    {
+      "id": "document-captain",
+      "displayName": "Captain",
+      "title": "Synthesis & Verdict",
+      "personaTag": "The Decider",
+      "focusChip": "SYNTHESIS & VERDICT",
+      "looksFor": "which draft is most defensible, and what each of the others got right that it missed",
+      "roleDescription": "Adjudicates between the drafts, states why, and extracts every improvement worth carrying across — attributed to its source.",
+      "defaultModel": "captain-a",
+      "defaultMode": "full_context",
+      "promptRef": "captains/document-captain.v1.md"
+    },
+    {
+      "id": "code-plan-captain",
+      "displayName": "Captain",
+      "title": "Synthesis & Verdict",
+      "personaTag": "The Decider",
+      "focusChip": "PLAN ADJUDICATION",
+      "looksFor": "the plan most likely to land in one pass, and the steps worth taking from the others",
+      "roleDescription": "Picks the plan that will actually execute, and names the risk each rejected plan was managing better.",
+      "defaultModel": "captain-a",
+      "defaultMode": "full_context",
+      "promptRef": "captains/code-plan-captain.v1.md"
+    }
+  ],
+
+  "modes": [
+    { "id": "evidence_only", "label": "Evidence Only", "helper": "Captain sees all documents and user input, no peer evaluation" },
+    { "id": "peer_scored",   "label": "Peer Scored",   "helper": "Captain sees peer evaluation scores and feedback only" },
+    { "id": "full_context",  "label": "Full Context",  "helper": "Captain sees everything: documents, user input, and peer evaluation" }
+  ],
+  "_modeNote": "FR-COUNCIL-010: the selected mode is recorded in provenance. A verdict is not interpretable without knowing what the Captain could see."
+}

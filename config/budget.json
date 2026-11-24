@@ -1,0 +1,21 @@
+{
+  "_comment": "NFR-COST-002 / DEC-19 / FR-ARCH-SYS-042. Every key below is MANDATORY and has no built-in default. The Config Loader refuses to start the server if any is null, missing or non-positive. Unit of record is the Copilot premium request (AM-04); raw tokens are metered and capped in addition, because an unbounded context window is the other way to spend without noticing.",
+
+  "perRunPremiumRequests": 60,
+  "perUserDailyPremiumRequests": 400,
+  "warnPercent": 75,
+
+  "perRunTokens": 600000,
+  "perUserDailyTokens": 4000000,
+
+  "premiumRequestPrice": { "minorUnits": 4, "currency": "USD" },
+
+  "confirmAbovePremiumRequests": 30,
+
+  "sizeBands": [
+    { "id": "small",  "label": "Small",  "maxPremiumRequests": 20 },
+    { "id": "medium", "label": "Medium", "maxPremiumRequests": 60 },
+    { "id": "large",  "label": "Large",  "maxPremiumRequests": null }
+  ],
+  "_sizeBandsNote": "FR-ADMIN-006: bands classify runs for reporting only. They never choose models, writers or phases."
+}

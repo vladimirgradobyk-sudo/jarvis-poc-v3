@@ -1,0 +1,46 @@
+{
+  "id": "generate-user-stories",
+  "name": "Generate User Stories",
+  "description": "Decompose an epic or feature into user stories with acceptance criteria, ready for the backlog.",
+  "agent": "product",
+  "subAgent": "product-owner",
+  "stages": ["requirement-lock", "lld-stories"],
+  "outputType": "jira",
+  "synonyms": ["stories", "user stories", "decompose", "backlog", "acceptance criteria", "story decomposition"],
+  "estimatedDurationSeconds": 180,
+  "status": "active",
+  "requiresScorecard": true,
+  "template": "user-stories",
+  "publishTargets": ["jira_issue"],
+  "contextMethods": ["materials", "source_file"],
+
+  "council": {
+    "artifactKind": "structured_items",
+    "phases": ["configure", "generate", "review", "adjudicate", "publish"],
+    "writers": { "min": 1, "max": 5, "default": 1, "requireDistinctModels": true,
+                 "rosterFile": "document-writers", "roster": ["pm-writer-1", "pm-writer-2", "pm-writer-3"] },
+    "captain": "document-captain",
+    "rubric": "document",
+    "synthesis": { "enabled": true, "maxSuggestions": 5 },
+    "budget": { "maxTokensPerWriter": 150000, "maxWallClockSeconds": 900 },
+    "qualityThreshold": 80
+  },
+  "_phaseNote": "structured_items omits `compare` — side-by-side prose comparison is the wrong instrument for a list of stories. The phase list is config, so this needed no engine change (council-engine-spec §3).",
+
+  "inputs": [
+    { "id": "epicUrl", "label": "Epic URL (Traceability ID)", "type": "jira_key", "required": true,
+      "placeholder": "MCSE-731" },
+    { "id": "sourceArtifact", "label": "Source Document", "type": "artifact_ref", "required": true,
+      "acceptsArtifactKinds": ["document"], "acceptsSkills": ["generate-lld"],
+      "help": "A published LLD for this epic. Stories are decomposed from the approved low-level design, never from scratch." },
+    { "id": "jiraProject", "label": "Jira Project Key", "type": "text", "required": true,
+      "placeholder": "G1206" },
+    { "id": "assignee", "label": "Assignee", "type": "text", "required": true,
+      "placeholder": "e180113",
+      "help": "FR-PUBLISH-007: publishing an unowned work item is a defect, not a default." },
+    { "id": "storyCount", "label": "Target Story Count", "type": "enum", "required": true, "default": "5-8",
+      "options": [ { "value": "3-5", "label": "3 to 5" }, { "value": "5-8", "label": "5 to 8" }, { "value": "8-12", "label": "8 to 12" } ] }
+  ],
+
+  "promptRef": "skills/generate-user-stories.v1.md"
+}

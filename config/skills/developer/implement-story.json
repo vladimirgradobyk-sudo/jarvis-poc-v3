@@ -1,0 +1,51 @@
+{
+  "id": "implement-story",
+  "name": "Implement Story",
+  "description": "Plan a story three ways, pick a plan, implement it in a sandbox, and propose a pull request.",
+  "agent": "developer",
+  "subAgent": "developer",
+  "stages": ["development"],
+  "outputType": "code",
+  "synonyms": ["implement", "code", "story implementation", "write code", "plan first", "pull request"],
+  "estimatedDurationSeconds": 600,
+  "status": "active",
+  "requiresScorecard": false,
+  "_scorecardNote": "G4 section scoring is mandatory for `document` artifacts (FR-SCORE-001). A code change is reviewed through the diff and the PR confirmation instead. The approval gate still runs every pre-flight check.",
+  "template": "impl-plan",
+  "publishTargets": ["pull_request"],
+  "requiresSandbox": true,
+  "contextMethods": ["source_file"],
+  "mode": "plan_first",
+  "_modeNote": "DEC-04 / AM-07 / NFR-COST-003: plan_first is the ONLY code mode. There is no execute mode and no 4-stage pipeline. The pilot team chose plan-first specifically because it uses fewer tokens.",
+
+  "council": {
+    "artifactKind": "code_plan",
+    "phases": ["configure", "generate", "review", "adjudicate", "execute", "publish"],
+    "_phaseOrderNote": "Code adjudicates BEFORE executing, because execution is expensive and must happen exactly once against the chosen plan. Documents compare then adjudicate. The engine must not care which (council-engine-spec §3).",
+    "writers": { "min": 1, "max": 3, "default": 1, "requireDistinctModels": true,
+                 "rosterFile": "code-plan-writers", "roster": ["developer-1", "developer-2", "developer-3"] },
+    "captain": "code-plan-captain",
+    "rubric": "code_plan",
+    "synthesis": { "enabled": false, "maxSuggestions": 4 },
+    "_synthesisNote": "Plans are not synthesised. The human picks ONE plan at G2 and that exact plan executes (FR-COUNCIL-007). Merging two plans would execute something nobody reviewed.",
+    "budget": { "maxTokensPerWriter": 300000, "maxWallClockSeconds": 1800 },
+    "qualityThreshold": 80
+  },
+
+  "uiLabels": { "generate": "Plan", "review": "Self & Peer Eval", "adjudicate": "Captain's Pick", "execute": "Execute" },
+
+  "inputs": [
+    { "id": "storyKey", "label": "Story", "type": "jira_key", "required": true,
+      "placeholder": "G1206-10586" },
+    { "id": "storyDescription", "label": "Story Description", "type": "textarea", "required": true,
+      "placeholder": "As a ... I want ... so that ...   Include the acceptance criteria." },
+    { "id": "repositoryUrl", "label": "Repository", "type": "repo_ref", "required": true,
+      "default": "sample-repo",
+      "help": "Fork status is resolved here, at input validation — not at publish time (FR-PUBLISH-006)." },
+    { "id": "baseBranch", "label": "Base Branch", "type": "text", "required": true, "default": "dev" },
+    { "id": "epicUrl", "label": "Epic URL (Traceability ID)", "type": "jira_key", "required": false,
+      "placeholder": "MCSE-731" }
+  ],
+
+  "promptRef": "skills/implement-story.v1.md"
+}

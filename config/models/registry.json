@@ -1,0 +1,156 @@
+{
+  "_comment": "FR-MODEL-001..005. The ONLY place a model identifier may appear. Application code resolves logical -> entry through providers/registry.js and never names a model. scripts/check-nonnegotiables.js fails the build if a model id appears anywhere else.",
+
+  "logicalModels": [
+    { "id": "writer-a",  "label": "Writer A",  "defaultEntryId": "claude-sonnet-4-6" },
+    { "id": "writer-b",  "label": "Writer B",  "defaultEntryId": "gpt-5-4" },
+    { "id": "writer-c",  "label": "Writer C",  "defaultEntryId": "gemini-3-pro" },
+    { "id": "writer-d",  "label": "Writer D",  "defaultEntryId": "gpt-5-4-mini" },
+    { "id": "writer-e",  "label": "Writer E",  "defaultEntryId": "claude-opus-4-5" },
+    { "id": "captain-a", "label": "Captain",   "defaultEntryId": "claude-opus-4-5", "policyFixed": true },
+    { "id": "model-opus-48", "label": "Opus 4.8", "defaultEntryId": "claude-opus-4-8" },
+    { "id": "model-opus-5",  "label": "Opus 5",   "defaultEntryId": "claude-opus-5" },
+    { "id": "model-opus-55", "label": "Opus 5.5", "defaultEntryId": "claude-opus-5-5" },
+    { "id": "model-gpt-5",   "label": "GPT-5",    "defaultEntryId": "gpt-5" },
+    { "id": "model-gpt-55",  "label": "GPT-5.5",  "defaultEntryId": "gpt-5-5" }
+  ],
+  "_captainNote": "DEC-15 / AM-10: the Captain model is fixed by policy and is not user-selectable. The API rejects a client-supplied captain model.",
+
+  "entries": [
+    {
+      "id": "claude-sonnet-4-6",
+      "provider": "copilot",
+      "family": "anthropic",
+      "displayName": "Claude Sonnet 4.6",
+      "contextWindow": 200000,
+      "premiumRequestMultiplier": 1,
+      "capabilities": ["code", "long_context"],
+      "status": "available",
+      "bedrockModelId": "us.anthropic.claude-sonnet-4-6",
+      "fixtureVoice": "pragmatic"
+    },
+    {
+      "id": "claude-opus-4-5",
+      "provider": "copilot",
+      "family": "anthropic",
+      "displayName": "Claude Opus 4.5",
+      "contextWindow": 200000,
+      "premiumRequestMultiplier": 1.5,
+      "capabilities": ["code", "long_context"],
+      "status": "available",
+      "bedrockModelId": null,
+      "fixtureVoice": "adjudicating"
+    },
+    {
+      "id": "gpt-5-4",
+      "provider": "copilot",
+      "family": "openai",
+      "displayName": "GPT-5.4",
+      "contextWindow": 128000,
+      "premiumRequestMultiplier": 1,
+      "capabilities": ["code"],
+      "status": "available",
+      "bedrockModelId": null,
+      "fixtureVoice": "rigorous"
+    },
+    {
+      "id": "gpt-5-4-mini",
+      "provider": "copilot",
+      "family": "openai",
+      "displayName": "GPT-5.4 mini",
+      "contextWindow": 128000,
+      "premiumRequestMultiplier": 0.33,
+      "capabilities": ["code"],
+      "status": "available",
+      "bedrockModelId": null,
+      "fixtureVoice": "terse"
+    },
+    {
+      "id": "gemini-3-pro",
+      "provider": "copilot",
+      "family": "google",
+      "displayName": "Gemini 3 Pro",
+      "contextWindow": 1000000,
+      "premiumRequestMultiplier": 1,
+      "capabilities": ["code", "long_context", "vision"],
+      "status": "available",
+      "bedrockModelId": null,
+      "fixtureVoice": "expansive"
+    },
+    {
+      "id": "gpt-4o",
+      "provider": "copilot",
+      "family": "openai",
+      "displayName": "GPT-4o",
+      "contextWindow": 128000,
+      "premiumRequestMultiplier": 0.5,
+      "capabilities": [],
+      "status": "deprecated",
+      "replacedBy": "gpt-5-4",
+      "bedrockModelId": null,
+      "fixtureVoice": "terse"
+    },
+    {
+      "id": "claude-opus-4-8",
+      "provider": "copilot",
+      "family": "anthropic",
+      "displayName": "Claude Opus 4.8",
+      "contextWindow": 200000,
+      "premiumRequestMultiplier": 1.6,
+      "capabilities": ["code", "long_context"],
+      "status": "available",
+      "bedrockModelId": null,
+      "fixtureVoice": "adjudicating"
+    },
+    {
+      "id": "claude-opus-5",
+      "provider": "copilot",
+      "family": "anthropic",
+      "displayName": "Claude Opus 5",
+      "contextWindow": 300000,
+      "premiumRequestMultiplier": 1.8,
+      "capabilities": ["code", "long_context"],
+      "status": "available",
+      "bedrockModelId": null,
+      "fixtureVoice": "adjudicating"
+    },
+    {
+      "id": "claude-opus-5-5",
+      "provider": "copilot",
+      "family": "anthropic",
+      "displayName": "Claude Opus 5.5",
+      "contextWindow": 400000,
+      "premiumRequestMultiplier": 2,
+      "capabilities": ["code", "long_context"],
+      "status": "available",
+      "bedrockModelId": null,
+      "fixtureVoice": "adjudicating"
+    },
+    {
+      "id": "gpt-5",
+      "provider": "copilot",
+      "family": "openai",
+      "displayName": "GPT-5",
+      "contextWindow": 256000,
+      "premiumRequestMultiplier": 1.2,
+      "capabilities": ["code"],
+      "status": "available",
+      "bedrockModelId": null,
+      "fixtureVoice": "rigorous"
+    },
+    {
+      "id": "gpt-5-5",
+      "provider": "copilot",
+      "family": "openai",
+      "displayName": "GPT-5.5",
+      "contextWindow": 256000,
+      "premiumRequestMultiplier": 1.3,
+      "capabilities": ["code"],
+      "status": "available",
+      "bedrockModelId": null,
+      "fixtureVoice": "rigorous"
+    }
+  ],
+
+  "_familyNote": "AM-01: `family` drives distinctness, not `id`. Two Anthropic models are NOT a diverse council. FR-COUNCIL-004 rejects a writer selection whose resolved families collide."
+}

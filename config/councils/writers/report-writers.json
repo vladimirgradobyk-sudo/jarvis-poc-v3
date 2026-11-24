@@ -1,0 +1,17 @@
+{
+  "_comment": "council-engine-spec.md §3: `report` is the SOLO case. writers: 1, no review, no captain. It is the same engine with phases omitted, which is why enabling Council for a report skill later (OQ-7) is a config change and not a rewrite. Engine acceptance criterion 2 is a test over exactly this file.",
+
+  "profiles": [
+    {
+      "id": "reviewer-1",
+      "displayName": "Code Reviewer",
+      "focusChip": "CHANGE REVIEW",
+      "looksFor": "correctness risk, missing tests, and anything a human reviewer would ask about",
+      "roleDescription": "Reviews a proposed change against the story it claims to implement, and reports findings by severity.",
+      "personaTag": "The Inspector",
+      "grade": "Staff Engineer",
+      "defaultModel": "writer-a",
+      "promptRef": "writers/report-writer-inspector.v1.md"
+    }
+  ]
+}

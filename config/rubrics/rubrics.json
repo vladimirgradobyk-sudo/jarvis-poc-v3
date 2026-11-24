@@ -1,0 +1,58 @@
+{
+  "_comment": "council-engine-spec.md §4.1. Rubrics are per artifact kind and are DECLARED, not inferred. A skill may override the default rubric for its kind. Weights are equal until accuracy data says otherwise (FR-SCORE-004).",
+
+  "rubrics": [
+    {
+      "id": "document",
+      "scale": { "min": 0, "max": 100 },
+      "requireStrengths": true,
+      "requireConcerns": true,
+      "requireFeedback": true,
+      "criteria": [
+        { "id": "clarity",      "label": "Clarity",      "weight": 1, "guidance": "Can a reader who was not in the room act on this?" },
+        { "id": "completeness", "label": "Completeness", "weight": 1, "guidance": "Is every template section present and substantive?" },
+        { "id": "accuracy",     "label": "Accuracy",     "weight": 1, "guidance": "Is every claim supported by a cited input?" },
+        { "id": "relevance",    "label": "Relevance",    "weight": 1, "guidance": "Does it answer the question asked, without padding?" },
+        { "id": "quality",      "label": "Quality",      "weight": 1, "guidance": "Would you put your name on it?" }
+      ]
+    },
+    {
+      "id": "code_plan",
+      "scale": { "min": 0, "max": 100 },
+      "requireStrengths": true,
+      "requireConcerns": true,
+      "requireFeedback": true,
+      "criteria": [
+        { "id": "feasibility",     "label": "Feasibility",     "weight": 1, "guidance": "Will these steps execute against the real repository?" },
+        { "id": "completeness",    "label": "Completeness",    "weight": 1, "guidance": "Does the plan cover tests, errors and callers?" },
+        { "id": "sequencing",      "label": "Sequencing",      "weight": 1, "guidance": "Is every step unblocked by the one before it?" },
+        { "id": "riskManagement",  "label": "Risk Management", "weight": 1, "guidance": "Is the blast radius named and contained?" },
+        { "id": "clarity",         "label": "Clarity",         "weight": 1, "guidance": "Could another engineer execute this unaided?" }
+      ]
+    },
+    {
+      "id": "report",
+      "scale": { "min": 0, "max": 100 },
+      "requireStrengths": true,
+      "requireConcerns": true,
+      "requireFeedback": true,
+      "criteria": [
+        { "id": "accuracy",    "label": "Accuracy",    "weight": 1, "guidance": "Is each finding real and correctly located?" },
+        { "id": "coverage",    "label": "Coverage",    "weight": 1, "guidance": "Were all changed files considered?" },
+        { "id": "severity",    "label": "Severity",    "weight": 1, "guidance": "Is each finding ranked proportionately?" },
+        { "id": "actionability","label": "Actionability","weight": 1, "guidance": "Does each finding name a next action?" },
+        { "id": "clarity",     "label": "Clarity",     "weight": 1, "guidance": "Is it readable by someone who did not write the change?" }
+      ]
+    }
+  ],
+
+  "qualityThreshold": {
+    "default": 80,
+    "_note": "DEC-27: the AI quality score is advisory with a recorded override. It is NEVER accuracy. Human G4 scoring remains mandatory.",
+    "autoFailRules": [
+      { "id": "placeholders-present", "label": "No unresolved placeholders", "severity": "blocking" },
+      { "id": "sections-missing",     "label": "All template sections present", "severity": "blocking" },
+      { "id": "citations-absent",     "label": "At least one cited source per scorable section", "severity": "advisory" }
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+﻿--- load landing
+   hero="JARVIS" · agent cards=3 · stage chips=11 · lifecycle chips=13
+   screenshot → data/ui-new-01-landing.png
+   FR-NAV-008 stage rail: all 11 present
+--- Action mode (search)
+   search "pull request" → 2 skill(s) · write badge: "↑Writes to Bitbucket · approval required"
+   screenshot → data/ui-new-02-action-mode.png
+--- Workflow mode
+   stage cards: 11
+   screenshot → data/ui-new-03-workflow-mode.png
+--- Agent mode → Product → Generate PRD form (gate G1)
+   form open=true · fields=6 · estimate="2.13–3.25 premium requests" · Generate disabled=false
+   screenshot → data/ui-new-04-g1-input-form.png
+--- fill required fields and start the run
+   Generate enabled=true
+   screenshot → data/ui-new-05-g1-filled.png
+   run started — waiting for the council…
+   modal head: Council Document GeneratorVerdict readyGenerate PRD · MCSE-731✕
+--- Self & Peer Eval tab (council runs only)
+   solo run — single writer, so the Captain reviews one draft (no peer evaluation tab)
+--- Compare tab
+--- Captain's Pick
+   base radios=1 · suggestions=0 · winner badge=true · full analysis disclosure=true
+   primary action: "Use PM Writer 1 unchanged"
+   screenshot → data/ui-new-09-captains-pick.png
+--- apply the decision (cherry-pick improvements if the Captain offered any)
+   solo review — no cherry-pick suggestions; using the reviewed draft unchanged
+   screenshot → data/ui-new-10-cherry-picked.png
+   → next gate: "Review and score — Generate PRD"
+   screenshot → data/ui-new-11-g4-scorecard.png
+   scorecard rows=8 · "Continue to approval" disabled=true (must be true while unscored)
+--- score every section
+   all scored → Continue enabled=true · aggregates: accuracy 78% · saving 75%
+   screenshot → data/ui-new-12-g4-complete.png
+--- G5 approval gate
+   gate: "Approve publication"
+     ✓Placeholders resolvedNo unresolved placeholders.passed
+     ✓Sections scored8 of 8 sections scored.passed
+     ✓Secret scan cleanNo generated code to scan.passed
+     ✓Target valid1 target(s) resolve.passed
+     ✓Base version currentThe target is unchanged since this draft was generated.passed
+     ✓Budget available387.5 premium requests remain today.passed
+   screenshot → data/ui-new-13-g5-approval.png
+--- approve and publish
+   result: ✓1 of 1 items published.Every target was written. The run is published and its provenance is sealed.
+   screenshot → data/ui-new-14-publish-result.png
+--- light theme
+   screenshot → data/ui-new-15-light-theme.png
+--- admin console
+   reconciliation: ✓All groupings reconcile to the ledger total.
+   screenshot → data/ui-new-16-admin-console.png
+
+=== CONSOLE / NETWORK PROBLEMS ===
+   none — the UI ran clean.

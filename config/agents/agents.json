@@ -1,0 +1,60 @@
+{
+  "_comment": "design-system.md §9: the professional role is ALWAYS the primary label. An alias never appears alone. Aliases are display-only and never reach an agent ID, audit record, provenance entry, file name or published artifact. Captains carry no invented human name.",
+
+  "agents": [
+    {
+      "id": "product",
+      "role": "Product",
+      "alias": null,
+      "glyph": "◆",
+      "description": "Vetting, requirements and decomposition.",
+      "stages": ["idea-vetting", "requirement-lock", "lld-stories"],
+      "subAgents": [
+        {
+          "id": "product-manager",
+          "role": "Product Manager",
+          "alias": "Nick Fury",
+          "description": "Product requirement documents, ideation and end-to-end test design."
+        },
+        {
+          "id": "product-owner",
+          "role": "Product Owner",
+          "alias": "Maria Hill",
+          "description": "Epic and feature decomposition, story quality and acceptance criteria."
+        }
+      ]
+    },
+    {
+      "id": "architect",
+      "role": "Architect",
+      "alias": "Doctor Strange",
+      "glyph": "⬡",
+      "description": "High- and low-level design, design review and change impact.",
+      "stages": ["solution-lock", "lld-stories"],
+      "subAgents": [
+        {
+          "id": "architect",
+          "role": "Architect",
+          "alias": "Doctor Strange",
+          "description": "High-level and low-level design for an epic."
+        }
+      ]
+    },
+    {
+      "id": "developer",
+      "role": "Developer",
+      "alias": "Spider-Man",
+      "glyph": "⬢",
+      "description": "Plan-first story implementation and pull-request review.",
+      "stages": ["development"],
+      "subAgents": [
+        {
+          "id": "developer",
+          "role": "Developer",
+          "alias": "Spider-Man",
+          "description": "Plan a story, implement it in a sandbox, and review pull requests."
+        }
+      ]
+    }
+  ]
+}

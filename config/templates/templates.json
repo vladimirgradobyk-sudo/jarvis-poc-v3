@@ -1,0 +1,341 @@
+{
+  "_comment": "Template sections are the backbone of three separate mechanisms: (1) the generated artifact's structure, (2) the G4 scorecard rows -- one row per section with scorable:true, and (3) the fixture transport's content plan. A section's `fixtureBullets` are the raw material each writer voice selects from, which is how three writers produce genuinely different drafts of the same template.",
+
+  "templates": [
+    {
+      "id": "prd",
+      "version": "1.0",
+      "title": "Product Requirement Document",
+      "sections": [
+        { "id": "problem", "heading": "Problem Statement", "scorable": true, "manualEffortHint": 3,
+          "fixtureBullets": [
+            "Delivery artifacts are produced by hand or by ad-hoc prompting, so quality varies by author rather than by difficulty.",
+            "Traceability from business outcome to verifying test is weak enough that nobody can answer \"is this requirement tested?\" without a manual trawl.",
+            "Review cycles are the bottleneck, not authoring: a document waits days for a reviewer who then skims it.",
+            "The pilot measured ~70% artifact accuracy, which is useful only if a human knows *which* 30% is wrong.",
+            "Teams that adopted ad-hoc AI assistance got faster first drafts and slower approvals."
+          ] },
+        { "id": "outcomes", "heading": "Target Outcomes", "scorable": true, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "Cut preparation effort for lifecycle artifacts by ~20% against the pilot baseline, measured at G4 rather than asserted.",
+            "Make every published artifact carry provenance sufficient to reconstruct how it was produced.",
+            "Reduce time-to-first-reviewable-draft from days to under an hour for design documents.",
+            "Give reviewers a defensible place to spend attention instead of reading three drafts end to end.",
+            "Establish an accuracy baseline per skill so later prompt changes can be judged rather than argued about."
+          ] },
+        { "id": "users", "heading": "Users and Personas", "scorable": true, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "Product Manager: owns vetting documents and discovery ideas; owns gates G3, G4 and G5.",
+            "Architect: owns high- and low-level design; needs the design review to be evidence-based.",
+            "Developer: owns story implementation and pull-request proposals; owns G2 and G5 for code.",
+            "Platform Engineer: owns configuration, the model registry, budgets and knowledge bases.",
+            "Security and Compliance: consumes the audit trail; never needs to trust a narrative."
+          ] },
+        { "id": "scope", "heading": "Scope", "scorable": true, "manualEffortHint": 3,
+          "fixtureBullets": [
+            "In scope: one governed thread from idea to tested pull-request proposal across three agent families.",
+            "In scope: three ways to start a run -- by agent, by action, by lifecycle stage.",
+            "Out of scope permanently: autonomous commit, push, merge, deploy, pipeline trigger or change submission.",
+            "Out of scope for this release: shared hosting, SSO, role-based access beyond a single workstation user.",
+            "Deferred: governed memory, review lenses, and skills export/import."
+          ] },
+        { "id": "requirements", "heading": "Functional Requirements", "scorable": true, "manualEffortHint": 5,
+          "fixtureBullets": [
+            "A run shall be startable only through a declared input schema, so every input is validatable, costable and recordable.",
+            "Three writers on three distinct model families shall draft independently and review every draft including their own.",
+            "A Captain shall adjudicate and produce a verdict in which every suggestion is attributed to its source candidate.",
+            "A human shall choose one base candidate and any subset of suggestions, as a single decision.",
+            "No write to an external system shall occur without a current, explicit, single-use approval bound to that exact version.",
+            "Section-by-section human accuracy scoring shall be mandatory before a document artifact is published."
+          ] },
+        { "id": "nfrs", "heading": "Non-Functional Requirements", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "Cost: a pre-run estimate in premium requests, with per-run and per-user-daily budgets enforced server-side.",
+            "Reliability: a server restart shall lose no completed writer output.",
+            "Security: no secrets, personal data or restricted data in prompts, logs, artifacts or telemetry.",
+            "Accessibility: WCAG 2.2 AA in both themes and keyboard-only completion of the whole thread.",
+            "Auditability: the event stream is append-only and sufficient to reconstruct the run."
+          ] },
+        { "id": "risks", "heading": "Risks and Mitigations", "scorable": true, "manualEffortHint": 3,
+          "fixtureBullets": [
+            "Reviewers rubber-stamp AI output. Mitigated by contested-candidate marking and mandatory section scoring.",
+            "Council cost grows with writer count. Mitigated by budgets, plan-first mode and a visible pre-run estimate.",
+            "Dependence on a single model provider. Mitigated by a provider abstraction with no vendor binding in code.",
+            "Target repositories are not AI-ready, so output is generic. Mitigated by a readiness assessment before use.",
+            "Knowledge bases may be unlicensed, which removes most of the measured accuracy."
+          ] },
+        { "id": "metrics", "heading": "Success Metrics", "scorable": true, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "Mean section accuracy per skill, from G4 scorecards rather than from self-report.",
+            "Effort saved percentage per artifact, captured at G4 against a manual-effort estimate.",
+            "Premium requests per published artifact, trended by skill and model family.",
+            "Proportion of runs published without a quality-threshold override.",
+            "Count of writes performed without an approval: must remain exactly zero."
+          ] },
+        { "id": "open", "heading": "Open Questions", "scorable": false, "manualEffortHint": 1,
+          "fixtureBullets": [
+            "Which model families are enabled by policy for this team?",
+            "Who is the named decision authority for this document?",
+            "Which Confluence space and parent page receive published artifacts?"
+          ] }
+      ]
+    },
+
+    {
+      "id": "user-stories",
+      "version": "1.0",
+      "title": "User Stories",
+      "itemised": true,
+      "sections": [
+        { "id": "epic-summary", "heading": "Epic Summary", "scorable": true, "manualEffortHint": 1,
+          "fixtureBullets": [
+            "The epic establishes a governed path from a requirement to a reviewed code change.",
+            "Scope is bounded by the approved high-level design and the non-functional envelope agreed at Solution Lock.",
+            "Delivery is sequenced so each story is independently demonstrable."
+          ] },
+        { "id": "stories", "heading": "Stories", "scorable": true, "manualEffortHint": 6,
+          "itemTemplate": true,
+          "fixtureBullets": [
+            "As a reviewer, I want contested drafts marked, so that I spend my attention where the writers disagreed.",
+            "As a product manager, I want a pre-run cost estimate, so that I can decide whether a council run is worth it.",
+            "As an approver, I want the approval bound to the exact version I reviewed, so that a later edit cannot ride along.",
+            "As a developer, I want to choose between plans before any code runs, so that execution happens once against the right plan.",
+            "As a platform engineer, I want budgets enforced server-side, so that a client bug cannot drain the daily allowance.",
+            "As an auditor, I want an append-only event log, so that I can reconstruct a run without trusting a summary.",
+            "As a quality engineer, I want test counters to read \"not measured\" when unparsed, so that a counter never contradicts the diff."
+          ] },
+        { "id": "acceptance", "heading": "Acceptance Criteria", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "Given three writers on three distinct families, when a run completes, then exactly nine reviews exist and self-reviews are excluded from the peer average.",
+            "Given a candidate with an unresolved placeholder, when publication is attempted, then it is blocked and the placeholder is named.",
+            "Given an approval that has been consumed, when publication is retried, then it is rejected as already used.",
+            "Given a target that changed after the proposal was built, when approval is attempted, then it is rejected as stale.",
+            "Given an incomplete scorecard, when approval is attempted, then it is blocked until every section is scored."
+          ] },
+        { "id": "dependencies", "heading": "Dependencies", "scorable": false, "manualEffortHint": 1,
+          "fixtureBullets": [
+            "Approved high-level design for the epic.",
+            "Model families enabled by policy for the council.",
+            "Write access to the target systems of record under the operator's own identity."
+          ] }
+      ]
+    },
+
+    {
+      "id": "hld",
+      "version": "1.0",
+      "title": "High-Level Design",
+      "sections": [
+        { "id": "context", "heading": "Context and Drivers", "scorable": true, "manualEffortHint": 3,
+          "fixtureBullets": [
+            "The change introduces an assurance step into an existing intent-registration flow without altering its public contract.",
+            "Primary driver is auditability: every decision must be reconstructable after the fact.",
+            "A secondary driver is cost control, because the expensive operation is invoked per request.",
+            "Constraint: the solution runs on a single workstation with no inbound network exposure.",
+            "Constraint: no credential may reach the component that executes untrusted content."
+          ] },
+        { "id": "components", "heading": "Component Design", "scorable": true, "manualEffortHint": 5,
+          "fixtureBullets": [
+            "An API layer owns validation, the error envelope and idempotency; it holds no orchestration logic.",
+            "A single orchestration engine drives declared phases; per-artifact behaviour is configuration, not code.",
+            "A provider abstraction resolves logical model names to concrete models and meters every call.",
+            "A policy component owns path resolution, redaction, budget checks and secret scanning -- each in exactly one place.",
+            "A proposal-and-approval component is the only path to an external write.",
+            "Integration adapters are mutually isolated and may not import the engine."
+          ] },
+        { "id": "data", "heading": "Data Design", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "An append-only event log is the source of truth; every projection is derived from it.",
+            "Runtime entities are immutable once approved, so provenance stays resolvable.",
+            "Content is stored content-addressed, separately from metadata, to keep the relational store small.",
+            "A monotonic sequence per session supports resume-by-sequence on the event stream.",
+            "The cost ledger is a first-class table, not a derived report, so every usage view reconciles to one total."
+          ] },
+        { "id": "integration", "heading": "Integration Design", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "Every adapter implements one publish contract and ships a dry-run mode returning the exact intended change.",
+            "A deterministic per-target idempotency key is derived at proposal time and reused across every attempt.",
+            "An ambiguous failure -- a timeout after send -- is treated as possibly applied: probe first, never blind-retry.",
+            "Partial failure is reported per item, and only failed items may be retried.",
+            "The source-control adapter proposes pull requests and has no push capability at all."
+          ] },
+        { "id": "security", "heading": "Security Design", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "Trust boundaries are enumerated, and each has one named control rather than a general assurance.",
+            "Model output, repository content and retrieved knowledge are untrusted data in a delimited channel, never instructions.",
+            "Code execution runs credential-free with allow-listed egress and is destroyed after the run.",
+            "Generated code is scanned for credential-like strings, and a positive finding blocks the proposal.",
+            "Deployment and change execution are unreachable by an agent in any release, with or without approval."
+          ] },
+        { "id": "nfr", "heading": "NFR Considerations", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "Latency: the comparison view must stay interactive with three eight-thousand-word documents.",
+            "Cost: per-run and per-user-daily budgets are mandatory configuration; startup fails if unset.",
+            "Reliability: writers execute concurrently and one failure degrades the run rather than aborting it.",
+            "Recoverability: daily local backup plus export; no availability objective is claimed for a local tool.",
+            "Observability: per-run models, premium requests and durations per writer are recorded for every run."
+          ] },
+        { "id": "alternatives", "heading": "Alternatives Considered", "scorable": true, "manualEffortHint": 3,
+          "fixtureBullets": [
+            "A per-agent orchestrator was rejected: five agent families would become five code paths that drift.",
+            "A single-model generator was rejected: correlated errors defeat the review mechanism entirely.",
+            "Direct provider APIs were rejected in favour of an abstraction, to avoid a vendor binding in application code.",
+            "A hosted multi-user deployment was deferred, keeping the seams open rather than building the planes.",
+            "An in-process sandbox was rejected for production use, retained only where no container runtime exists."
+          ] },
+        { "id": "risks", "heading": "Risks and Open Items", "scorable": false, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "Container runtime availability on managed workstations is unconfirmed.",
+            "The approved model catalogue is not yet fixed, which blocks the registry's concrete entries.",
+            "Required custom fields on the target issue tracker are unknown and will surface as publish rejections."
+          ] }
+      ]
+    },
+
+    {
+      "id": "lld",
+      "version": "1.0",
+      "title": "Low-Level Design",
+      "sections": [
+        { "id": "scope", "heading": "Scope and Inputs", "scorable": true, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "This design elaborates the approved high-level design to implementation detail for one epic.",
+            "It assumes the component boundaries of the high-level design and does not revisit them.",
+            "Anything not named here is explicitly out of this design's scope."
+          ] },
+        { "id": "modules", "heading": "Module Decomposition", "scorable": true, "manualEffortHint": 5,
+          "fixtureBullets": [
+            "Each module declares its permitted imports, and the rule is enforced in continuous integration rather than by convention.",
+            "Path resolution exists in exactly one module; a second resolver is a traversal defect waiting to happen.",
+            "Model-name-to-display-name mapping exists in exactly one module, because the pilot showed one model three ways in one flow.",
+            "The run status string is produced in exactly one place, because the pilot showed a spinner beside a finished result.",
+            "Phase handlers are uniform: each takes a run context and returns events, so the driver stays artifact-agnostic."
+          ] },
+        { "id": "interfaces", "heading": "Interface Contracts", "scorable": true, "manualEffortHint": 5,
+          "fixtureBullets": [
+            "Every endpoint validates its body against a schema before any side effect, and rejects with field-level detail.",
+            "No endpoint accepts a policy decision from the client: budget, path, approval validity and model distinctness are server-side only.",
+            "Every state-changing endpoint is idempotent by nature or by key.",
+            "One error envelope shape is returned on every non-2xx response, carrying a stable problem code.",
+            "The event stream emits a monotonic sequence as its identifier, and replays from a supplied last-seen value."
+          ] },
+        { "id": "data-structures", "heading": "Data Structures", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "Identifiers are opaque and type-prefixed; clients must not parse them.",
+            "Timestamps are UTC with milliseconds, in one format everywhere.",
+            "Amounts are integers in minor units with an explicit currency, never floating point.",
+            "Review records carry an explicit self-review flag rather than being inferred by comparing identifiers.",
+            "Candidate aggregates persist the evaluator score spread, because the contested threshold is read from it."
+          ] },
+        { "id": "algorithms", "heading": "Key Algorithms", "scorable": true, "manualEffortHint": 5,
+          "fixtureBullets": [
+            "Quorum: at least two settled candidates are required to enter review; with one, skip to the human gate and mark degraded.",
+            "Peer average: self-reviews are excluded from the mean and displayed separately.",
+            "Contested detection: a candidate whose evaluator scores span more than twenty points is marked for attention.",
+            "Consensus extraction: a strength or concern raised by two or more evaluators is promoted to the consensus panel.",
+            "Cost estimation: writer count multiplied by resolved-model multipliers multiplied by expected calls per phase."
+          ] },
+        { "id": "error-handling", "heading": "Error Handling", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "One writer failing with quorum intact continues the run and marks it degraded with a named cause.",
+            "A per-writer timeout fails only that writer; a run wall-clock timeout fails the run but preserves settled candidates.",
+            "A Captain failure preserves candidates and reviews, and offers retry, a cheaper mode, or proceeding with no verdict -- clearly labelled.",
+            "A sandbox failure yields no partial proposal and destroys the sandbox.",
+            "Degradation is never silent: every degraded run names its cause in the interface and in provenance."
+          ] },
+        { "id": "testing", "heading": "Test Design", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "Every must-have requirement maps to a named test, and the test name carries the requirement identifier.",
+            "Integration tests run against recorded fixtures, so continuous integration is deterministic and free.",
+            "Live-model evaluations are scheduled, never on the pull-request path, because they are non-deterministic and cost money.",
+            "Negative tests are first-class: a blocked write is as important to prove as a successful one.",
+            "Boundary rules and non-negotiables are checked mechanically, not asserted in review."
+          ] },
+        { "id": "deployment", "heading": "Deployment and Configuration", "scorable": false, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "Configuration is split per stage and merged at build time; the merged artifact is build output and never hand-edited.",
+            "The server refuses to start on invalid configuration; there is no degraded-mode startup.",
+            "Prompts are immutable versioned files, referenced by explicit version and never by \"latest\"."
+          ] }
+      ]
+    },
+
+    {
+      "id": "impl-plan",
+      "version": "1.0",
+      "title": "Implementation Plan",
+      "sections": [
+        { "id": "understanding", "heading": "Understanding", "scorable": true, "manualEffortHint": 1,
+          "fixtureBullets": [
+            "The story adds an assurance check to the intent-registration path and must not change the existing response contract.",
+            "Two callers exist today; both must keep working without modification.",
+            "The change is additive: a new validator plus wiring, not a rewrite of the mapper."
+          ] },
+        { "id": "steps", "heading": "Planned Steps", "scorable": true, "manualEffortHint": 4,
+          "fixtureBullets": [
+            "Add an assurance-level enumeration alongside the existing intent model rather than overloading an existing field.",
+            "Introduce a validator with a single public entry point so the call site stays one line.",
+            "Wire the validator into the registration service behind the existing feature boundary.",
+            "Extend the mapper to carry the assurance level through to the response object.",
+            "Add unit tests for each assurance level including the rejection path.",
+            "Add an integration test proving the existing callers are unaffected."
+          ] },
+        { "id": "files", "heading": "Files to Change", "scorable": true, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "A new enumeration file for assurance levels.",
+            "A new validator class with its unit test.",
+            "The registration service, to call the validator.",
+            "The mapper, to propagate the resolved level.",
+            "The existing service test, extended rather than replaced."
+          ] },
+        { "id": "tests", "heading": "Verification", "scorable": true, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "Unit tests cover every enumeration value plus the null and unknown inputs.",
+            "An existing-behaviour test proves the public contract is unchanged.",
+            "A negative test proves an unknown assurance level is rejected rather than defaulted."
+          ] },
+        { "id": "risks", "heading": "Risks and Rollback", "scorable": true, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "Blast radius is one service and one mapper; no schema change and no migration.",
+            "Rollback is the revert of a single change set, with no data to undo.",
+            "The main risk is a silent default on an unknown level, which the negative test exists to prevent."
+          ] }
+      ]
+    },
+
+    {
+      "id": "pr-review",
+      "version": "1.0",
+      "title": "Pull Request Review",
+      "provisional": true,
+      "sections": [
+        { "id": "summary", "heading": "Summary", "scorable": true, "manualEffortHint": 1,
+          "fixtureBullets": [
+            "The change adds an assurance validator and propagates its result, across five files with no public contract change.",
+            "Structure follows the existing package layout, and the new class has a single responsibility.",
+            "Test coverage accompanies the change rather than following it."
+          ] },
+        { "id": "findings", "heading": "Findings", "scorable": true, "manualEffortHint": 3,
+          "severityTagged": true,
+          "fixtureBullets": [
+            "[MEDIUM] The validator returns a boolean where the caller needs to distinguish \"invalid\" from \"not applicable\"; a result type would prevent a silent false.",
+            "[LOW] The new enumeration has no explicit unknown member, so a future value deserialises to null and takes the happy path.",
+            "[MEDIUM] The mapper change is untested for the null assurance case, which is reachable from the existing callers.",
+            "[LOW] A log line includes the full intent payload; it should be reduced to the identifier before merge.",
+            "[HIGH] The rejection path throws a generic runtime exception, which the existing handler maps to a 500 rather than a 422."
+          ] },
+        { "id": "tests-assessment", "heading": "Test Assessment", "scorable": true, "manualEffortHint": 2,
+          "fixtureBullets": [
+            "Positive paths are covered for every enumeration value.",
+            "The null input case is not covered, and it is reachable.",
+            "No test asserts the status code produced by the rejection path."
+          ] },
+        { "id": "recommendation", "heading": "Recommendation", "scorable": false, "manualEffortHint": 1,
+          "fixtureBullets": [
+            "Request changes: address the rejection-path status mapping and add the null-assurance test before merge.",
+            "The remaining findings are non-blocking and can follow in a separate change."
+          ] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "generate-lld",
+  "name": "Generate LLD",
+  "description": "Elaborate an approved High-Level Design into an implementation-ready Low-Level Design.",
+  "agent": "architect",
+  "subAgent": "architect",
+  "stages": ["lld-stories"],
+  "outputType": "document",
+  "synonyms": ["lld", "low level design", "detailed design", "module design"],
+  "estimatedDurationSeconds": 420,
+  "status": "active",
+  "requiresScorecard": true,
+  "template": "lld",
+  "publishTargets": ["confluence_page"],
+  "contextMethods": ["materials", "source_file"],
+
+  "_deviation": "v1.6 places Generate LLD in R2 under the Tech Lead agent (skill-catalogue §4.6 #57), which is out of MVP scope. It was explicitly requested for this PoC, so it ships under the Architect agent in stage lld-stories. Recorded in docs/DEVIATIONS.md as DV-02. Note this cost no engine change — only this file.",
+
+  "council": {
+    "artifactKind": "document",
+    "phases": ["configure", "generate", "review", "compare", "adjudicate", "publish"],
+    "writers": { "min": 1, "max": 5, "default": 1, "requireDistinctModels": true,
+                 "rosterFile": "document-writers", "roster": ["architect-1", "architect-2", "architect-3"] },
+    "captain": "document-captain",
+    "rubric": "document",
+    "synthesis": { "enabled": true, "maxSuggestions": 5 },
+    "budget": { "maxTokensPerWriter": 400000, "maxWallClockSeconds": 1800 },
+    "qualityThreshold": 80
+  },
+
+  "inputs": [
+    { "id": "hldArtifact", "label": "High-Level Design", "type": "artifact_ref", "required": true,
+      "acceptsArtifactKinds": ["document"], "acceptsSkills": ["generate-hld"],
+      "help": "An approved HLD. This design elaborates it and does not revisit its component boundaries." },
+    { "id": "epicUrl", "label": "Epic URL (Traceability ID)", "type": "jira_key", "required": true,
+      "placeholder": "MCSE-731" },
+    { "id": "targetModules", "label": "Target Modules", "type": "textarea", "required": false,
+      "placeholder": "Modules or services in scope for this design, one per line" },
+    { "id": "confluencePublishUrl", "label": "Confluence Publish Target", "type": "url", "required": false,
+      "placeholder": "Leave empty to choose at publish time" }
+  ],
+
+  "promptRef": "skills/generate-lld.v1.md"
+}

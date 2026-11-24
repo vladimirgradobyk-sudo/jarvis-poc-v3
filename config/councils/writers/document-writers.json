@@ -1,0 +1,69 @@
+{
+  "_comment": "WriterProfile[] per council-engine-spec.md §4. A roster must hold at least `writers.max` entries (config validator rule 3).",
+
+  "profiles": [
+    {
+      "id": "pm-writer-1",
+      "displayName": "PM Writer 1",
+      "focusChip": "PRODUCT STRATEGY FOCUS",
+      "looksFor": "market fit, customer value, and measurable business outcomes",
+      "roleDescription": "Writes from the outcome backwards. Starts with who is harmed today and what changes for them.",
+      "personaTag": "The Advocate",
+      "defaultModel": "writer-a",
+      "promptRef": "writers/document-writer-strategy.v1.md"
+    },
+    {
+      "id": "pm-writer-2",
+      "displayName": "PM Writer 2",
+      "focusChip": "EVIDENCE & RISK FOCUS",
+      "looksFor": "unstated assumptions, missing evidence, and the cost of being wrong",
+      "roleDescription": "Writes defensively. Will not assert a number it cannot cite, and says so where the input is silent.",
+      "personaTag": "The Defender",
+      "defaultModel": "writer-b",
+      "promptRef": "writers/document-writer-evidence.v1.md"
+    },
+    {
+      "id": "pm-writer-3",
+      "displayName": "PM Writer 3",
+      "focusChip": "SCOPE & SEQUENCING FOCUS",
+      "looksFor": "the smallest valuable slice and what can safely be deferred",
+      "roleDescription": "Writes to a delivery plan. Treats scope as the primary design material.",
+      "personaTag": "The Pragmatist",
+      "defaultModel": "writer-c",
+      "promptRef": "writers/document-writer-scope.v1.md"
+    },
+    {
+      "id": "architect-1",
+      "displayName": "Architect 1",
+      "focusChip": "ARCHITECTURE FOCUS",
+      "looksFor": "component boundaries, coupling, and the seams a later release will need",
+      "roleDescription": "Designs for the change after this one. Names the seam before it is needed.",
+      "personaTag": "The Structuralist",
+      "grade": "Principal Architect",
+      "defaultModel": "writer-a",
+      "promptRef": "writers/document-writer-structure.v1.md"
+    },
+    {
+      "id": "architect-2",
+      "displayName": "Architect 2",
+      "focusChip": "NON-FUNCTIONAL FOCUS",
+      "looksFor": "latency budgets, failure modes, and the control that proves each one",
+      "roleDescription": "Treats every non-functional claim as a testable assertion or an open question.",
+      "personaTag": "The Defender",
+      "grade": "Sr. Architect",
+      "defaultModel": "writer-b",
+      "promptRef": "writers/document-writer-nfr.v1.md"
+    },
+    {
+      "id": "architect-3",
+      "displayName": "Architect 3",
+      "focusChip": "INTEGRATION FOCUS",
+      "looksFor": "contracts between systems and what happens when the other side is down",
+      "roleDescription": "Designs from the integration inwards. Every external call gets a failure story.",
+      "personaTag": "The Connector",
+      "grade": "Sr. Architect",
+      "defaultModel": "writer-c",
+      "promptRef": "writers/document-writer-integration.v1.md"
+    }
+  ]
+}

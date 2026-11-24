@@ -1,0 +1,15 @@
+
+  JARVIS — AI Delivery Lifecycle Assistant
+  Proof of concept · not for production use
+
+  →  http://127.0.0.1:7705
+
+  actor          VolodymyrGradobyk  (OS user)
+  config         sha256:0ca51156178d6006
+  transport      fixture  (deterministic, no model calls, no cost)
+  sandbox        local
+  skills         6  ·  agents 3  ·  stages 11
+  budget         60 premium requests/run · 400/day · warn at 75%
+
+  Ctrl+C to stop.
+

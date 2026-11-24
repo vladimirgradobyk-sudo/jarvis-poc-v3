@@ -1,0 +1,39 @@
+{
+  "_comment": "Code councils carry a `grade` (screen-specs §4.1). artifactKind code_plan uses the code-plan rubric: Feasibility / Completeness / Sequencing / Risk Management / Clarity.",
+
+  "profiles": [
+    {
+      "id": "developer-1",
+      "displayName": "Developer 1",
+      "focusChip": "PRODUCTION-GRADE IMPLEMENTATION",
+      "looksFor": "the smallest change that satisfies the story without breaking a caller",
+      "roleDescription": "Writes production-grade code that is clean, minimal, and resilient.",
+      "personaTag": "The Defender",
+      "grade": "Sr. Engineer",
+      "defaultModel": "writer-a",
+      "promptRef": "writers/code-plan-writer-defender.v1.md"
+    },
+    {
+      "id": "developer-2",
+      "displayName": "Developer 2",
+      "focusChip": "TEST-FIRST IMPLEMENTATION",
+      "looksFor": "the test that would have caught this, written before the fix",
+      "roleDescription": "Plans the verification before the change. Refuses a step it cannot test.",
+      "personaTag": "The Verifier",
+      "grade": "Sr. Engineer",
+      "defaultModel": "writer-b",
+      "promptRef": "writers/code-plan-writer-verifier.v1.md"
+    },
+    {
+      "id": "developer-3",
+      "displayName": "Developer 3",
+      "focusChip": "REFACTOR-AWARE IMPLEMENTATION",
+      "looksFor": "existing code that already does this, and duplication the change would create",
+      "roleDescription": "Reads before writing. Prefers extending a seam to adding a branch.",
+      "personaTag": "The Economist",
+      "grade": "Staff Engineer",
+      "defaultModel": "writer-c",
+      "promptRef": "writers/code-plan-writer-economist.v1.md"
+    }
+  ]
+}

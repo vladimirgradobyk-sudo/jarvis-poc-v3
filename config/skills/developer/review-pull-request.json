@@ -1,0 +1,50 @@
+{
+  "id": "review-pull-request",
+  "name": "Review Pull Request",
+  "description": "Review a proposed change against the story it claims to implement, and report findings by severity.",
+  "agent": "developer",
+  "subAgent": "developer",
+  "stages": ["development"],
+  "outputType": "report",
+  "synonyms": ["pr review", "code review", "review change", "review diff", "review pull request"],
+  "estimatedDurationSeconds": 90,
+  "status": "active",
+  "requiresScorecard": false,
+  "template": "pr-review",
+  "publishTargets": ["confluence_page"],
+  "contextMethods": ["source_file"],
+  "provisional": true,
+  "_provisionalNote": "screen-specs §7.3: an AI-generated assessment carries a mandatory provisional banner — 'must be evaluated by qualified personnel before action is taken on these recommendations.'",
+
+  "council": {
+    "artifactKind": "report",
+    "phases": ["configure", "generate", "publish"],
+    "_soloNote": "THIS IS THE ENGINE'S EXAM (engine acceptance criterion 2). writers: 1, no review, no captain, no compare, no adjudicate — the SAME engine with phases omitted, not a second code path. If running this skill required an engine change, the engine was wrong. Enabling Council here later (OQ-7) is a change to this file only.",
+    "writers": { "min": 1, "max": 1, "default": 1, "requireDistinctModels": false,
+                 "rosterFile": "report-writers", "roster": ["reviewer-1"] },
+    "captain": null,
+    "rubric": "report",
+    "synthesis": { "enabled": false, "maxSuggestions": 0 },
+    "budget": { "maxTokensPerWriter": 150000, "maxWallClockSeconds": 600 },
+    "qualityThreshold": 75
+  },
+
+  "uiLabels": { "generate": "Review" },
+
+  "inputs": [
+    { "id": "proposalRef", "label": "Pull Request Proposal", "type": "artifact_ref", "required": true,
+      "acceptsArtifactKinds": ["code_plan"],
+      "help": "A pull-request proposal produced by Implement Story." },
+    { "id": "storyKey", "label": "Story", "type": "jira_key", "required": true,
+      "placeholder": "G1206-10586",
+      "help": "The change is reviewed against the story it claims to implement." },
+    { "id": "focus", "label": "Review Focus", "type": "enum", "required": true, "default": "correctness",
+      "options": [
+        { "value": "correctness", "label": "Correctness and tests" },
+        { "value": "security",    "label": "Security" },
+        { "value": "all",         "label": "All lenses" }
+      ] }
+  ],
+
+  "promptRef": "skills/review-pull-request.v1.md"
+}

@@ -1,0 +1,44 @@
+{
+  "id": "generate-hld",
+  "name": "Generate HLD",
+  "description": "Generate a High-Level Design document for an epic from its PRD and requirements.",
+  "agent": "architect",
+  "subAgent": "architect",
+  "stages": ["solution-lock"],
+  "outputType": "document",
+  "synonyms": ["hld", "high level design", "solution design", "architecture document", "design"],
+  "estimatedDurationSeconds": 420,
+  "status": "active",
+  "requiresScorecard": true,
+  "template": "hld",
+  "publishTargets": ["confluence_page"],
+  "contextMethods": ["materials", "source_file"],
+
+  "council": {
+    "artifactKind": "document",
+    "phases": ["configure", "generate", "review", "compare", "adjudicate", "publish"],
+    "writers": { "min": 1, "max": 5, "default": 1, "requireDistinctModels": true,
+                 "rosterFile": "document-writers", "roster": ["architect-1", "architect-2", "architect-3"] },
+    "captain": "document-captain",
+    "rubric": "document",
+    "synthesis": { "enabled": true, "maxSuggestions": 5 },
+    "budget": { "maxTokensPerWriter": 400000, "maxWallClockSeconds": 1800 },
+    "qualityThreshold": 80
+  },
+
+  "inputs": [
+    { "id": "prdArtifact", "label": "Product Requirement Document", "type": "artifact_ref", "required": true,
+      "acceptsArtifactKinds": ["document"], "acceptsSkills": ["generate-prd"],
+      "help": "The approved PRD this design realises." },
+    { "id": "epicUrl", "label": "Epic URL (Traceability ID)", "type": "jira_key", "required": true,
+      "placeholder": "MCSE-731" },
+    { "id": "scopeMode", "label": "Scope", "type": "enum", "required": true, "default": "full",
+      "options": [ { "value": "full", "label": "Full" }, { "value": "delta", "label": "Delta only" } ] },
+    { "id": "constraints", "label": "Known Constraints", "type": "textarea", "required": false,
+      "placeholder": "Platform, latency, compliance or integration constraints already agreed" },
+    { "id": "confluencePublishUrl", "label": "Confluence Publish Target", "type": "url", "required": false,
+      "placeholder": "Leave empty to choose at publish time" }
+  ],
+
+  "promptRef": "skills/generate-hld.v1.md"
+}
