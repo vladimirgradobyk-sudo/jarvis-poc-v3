@@ -1,0 +1,183 @@
+/* JARVIS design tokens — design-system.md §2–§5.
+ *
+ * THE ONLY FILE IN THIS PROJECT CONTAINING A LITERAL HEX, PX OR MS VALUE.
+ * scripts/check-nonnegotiables.js fails the build if a hex colour appears anywhere else.
+ * If a screen needs a value that is not a token here, the token set is incomplete — extend it
+ * rather than hard-coding (design-system.md preamble).
+ *
+ * In R1 this file is GENERATED from the Figma variable export. Here it is hand-written from the
+ * published token table, with the same names, so the generator can replace it later unchanged.
+ */
+
+:root {
+  /* ── 2.1 Primitives ──────────────────────────────────────────────────────────────────── */
+  --mc-orange-900: #7A2E10;
+  --mc-orange-800: #A8401A;
+  --mc-orange-700: #C8501F;
+  --mc-orange-600: #E8622A;
+  --mc-orange-500: #F26D24;
+  --mc-orange-400: #F58B55;
+  --mc-orange-300: #F9B28C;
+  --mc-orange-100: #FDE8DC;
+  --mc-orange-050: #FEF4EE;
+
+  --neutral-1000: #07090D;
+  --neutral-950:  #0D1117;
+  --neutral-900:  #121826;
+  --neutral-850:  #1A2130;
+  --neutral-800:  #1E2535;
+  --neutral-700:  #2A3344;
+  --neutral-600:  #3D4759;
+  --neutral-500:  #5A6578;
+  --neutral-400:  #7A8699;
+  --neutral-300:  #A8B2C1;
+  --neutral-200:  #D4DAE3;
+  --neutral-100:  #E6E8EC;
+  --neutral-050:  #F4F6F9;
+  --neutral-000:  #FFFFFF;
+
+  --green-600: #16A34A;  --green-500: #22C55E;  --green-400: #4ADE80;  --green-100: #DCFCE7;
+  --amber-500: #F59E0B;  --amber-400: #FBBF24;  --amber-100: #FEF3C7;
+  --red-500:   #EF4444;  --red-400:   #F87171;  --red-100:   #FEE2E2;
+  --blue-500:  #3B82F6;  --blue-400:  #60A5FA;  --blue-100:  #DBEAFE;
+
+  /* ── 3. Typography ───────────────────────────────────────────────────────────────────── */
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
+
+  --text-display:     700 32px/40px var(--font-sans);
+  --text-h1:          600 24px/32px var(--font-sans);
+  --text-h2:          600 20px/28px var(--font-sans);
+  --text-h3:          600 16px/24px var(--font-sans);
+  --text-body:        400 14px/22px var(--font-sans);
+  --text-body-strong: 600 14px/22px var(--font-sans);
+  --text-small:       400 13px/20px var(--font-sans);
+  --text-caption:     400 12px/16px var(--font-sans);
+  --text-overline:    600 11px/16px var(--font-sans);
+  --text-mono:        400 13px/20px var(--font-mono);
+  --text-mono-small:  400 12px/18px var(--font-mono);
+  --text-score:       700 28px/32px var(--font-sans);
+
+  /* ── 4. Spacing, radius, elevation, motion ───────────────────────────────────────────── */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 24px;  --space-6: 32px;  --space-8: 48px;  --space-10: 64px;
+
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px; --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.35);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.45);
+  --shadow-focus: 0 0 0 3px rgba(242,109,36,.45);
+
+  --dur-fast: 120ms; --dur-base: 200ms; --dur-slow: 320ms;
+  --ease: cubic-bezier(.2,0,.2,1);
+
+  /* ── 5. Layout ───────────────────────────────────────────────────────────────────────── */
+  --rail-width: 240px;
+  --rail-width-collapsed: 56px;
+  --content-max: 1200px;
+  --modal-width-lg: 1120px;
+  --modal-width-md: 720px;
+  --header-height: 56px;
+  --stage-rail-height: 48px;
+
+  /* Minimum interactive target (UX-A11Y-008). */
+  --target-min: 44px;
+
+  /* Modal scrim. A token rather than an inline literal, so the check in
+   * scripts/check-nonnegotiables.js stays meaningful. */
+  --bg-scrim: rgba(7, 9, 13, .72);
+}
+
+/* ── 2.2 Semantic tokens — dark (default) ──────────────────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  --bg-canvas:         var(--neutral-950);
+  --bg-surface:        var(--neutral-850);
+  --bg-surface-raised: var(--neutral-800);
+  --bg-surface-sunken: var(--neutral-1000);
+  --bg-inset:          var(--neutral-900);
+
+  --border-default: var(--neutral-700);
+  --border-strong:  var(--neutral-600);
+  --border-focus:   var(--mc-orange-500);
+
+  --text-primary:   var(--neutral-100);
+  --text-secondary: var(--neutral-300);
+  --text-muted:     var(--neutral-400);
+  --text-on-accent: var(--neutral-000);
+
+  --accent-default: var(--mc-orange-600);
+  --accent-hover:   var(--mc-orange-500);
+  --accent-subtle:  rgba(232,98,42,.12);
+  --accent-text:    var(--mc-orange-400);
+
+  --score-high: var(--green-400);
+  --score-mid:  var(--amber-400);
+  --score-low:  var(--red-400);
+
+  --status-success: var(--green-400);
+  --status-warning: var(--amber-400);
+  --status-danger:  var(--red-400);
+  --status-info:    var(--blue-400);
+
+  --diff-add-bg: rgba(34,197,94,.14);
+  --diff-del-bg: rgba(239,68,68,.14);
+
+  --chip-accent-bg:   var(--mc-orange-100);
+  --chip-accent-text: var(--mc-orange-900);
+  --banner-info-bg:    rgba(59,130,246,.10);
+  --banner-warning-bg: rgba(245,158,11,.10);
+  --banner-danger-bg:  rgba(239,68,68,.10);
+  --banner-success-bg: rgba(34,197,94,.10);
+
+  color-scheme: dark;
+}
+
+/* ── 2.2 Semantic tokens — light. One token set, two themes, BOTH AA (design-system §1.7). ── */
+[data-theme="light"] {
+  --bg-canvas:         var(--neutral-000);
+  --bg-surface:        var(--neutral-050);
+  --bg-surface-raised: var(--neutral-000);
+  --bg-surface-sunken: var(--neutral-100);
+  --bg-inset:          var(--neutral-050);
+
+  --border-default: var(--neutral-200);
+  --border-strong:  var(--neutral-300);
+  --border-focus:   var(--mc-orange-700);
+
+  --text-primary:   var(--neutral-950);
+  --text-secondary: var(--neutral-600);
+  --text-muted:     var(--neutral-500);
+  --text-on-accent: var(--neutral-000);
+
+  --accent-default: var(--mc-orange-700);
+  --accent-hover:   var(--mc-orange-600);
+  --accent-subtle:  var(--mc-orange-050);
+  --accent-text:    var(--mc-orange-800);
+
+  --score-high: var(--green-600);
+  --score-mid:  var(--amber-500);
+  --score-low:  var(--red-500);
+
+  --status-success: var(--green-600);
+  --status-warning: var(--amber-500);
+  --status-danger:  var(--red-500);
+  --status-info:    var(--blue-500);
+
+  --diff-add-bg: var(--green-100);
+  --diff-del-bg: var(--red-100);
+
+  --chip-accent-bg:   var(--mc-orange-100);
+  --chip-accent-text: var(--mc-orange-900);
+  --banner-info-bg:    var(--blue-100);
+  --banner-warning-bg: var(--amber-100);
+  --banner-danger-bg:  var(--red-100);
+  --banner-success-bg: var(--green-100);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.14);
+
+  color-scheme: light;
+}
