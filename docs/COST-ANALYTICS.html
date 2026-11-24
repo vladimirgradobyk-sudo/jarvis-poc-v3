@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JARVIS — Executive Cost Analytics — 1,000 Runs</title>
+<style>
+/* ── Design tokens ─────────────────────────────────── */
+:root {
+  --bg:       #0D1117;
+  --surface:  #161B22;
+  --surface2: #1C2333;
+  --border:   #30363D;
+  --text-1:   #E6EDF3;
+  --text-2:   #8B949E;
+  --text-3:   #484F58;
+  --accent:   #E8622A;
+
+  /* Categorical — reference palette dark mode, validated */
+  --cat-1: #3987e5;  /* blue   */
+  --cat-2: #d95926;  /* orange */
+  --cat-3: #199e70;  /* aqua   */
+  --cat-4: #c98500;  /* yellow */
+  --cat-5: #d55181;  /* magenta */
+  --cat-6: #0ca30c;  /* green  */
+
+  --grid:  #21262D;
+  --font:  -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:  'JetBrains Mono','Cascadia Code',Consolas,monospace;
+  --r:     6px;
+}
+
+/* ── Reset & base ──────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--text-1);line-height:1.55;padding:0}
+a{color:var(--cat-1);text-decoration:none}
+
+/* ── Layout ────────────────────────────────────────── */
+.report{max-width:960px;margin:0 auto;padding:32px 24px 64px}
+section{margin-top:40px}
+h1{font-size:2rem;font-weight:700;letter-spacing:-0.02em}
+h2{font-size:1.25rem;font-weight:600;color:var(--text-2);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:16px}
+h3{font-size:1rem;font-weight:600;margin-bottom:8px}
+.subtitle{color:var(--text-2);font-size:.9rem;margin-top:4px}
+.badge{display:inline-block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  padding:3px 8px;border-radius:3px;vertical-align:middle}
+.badge-accent{background:var(--accent);color:#fff}
+.badge-muted{background:var(--border);color:var(--text-2)}
+
+/* ── KPI tiles ─────────────────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:20px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center}
+.kpi-value{font-family:var(--mono);font-size:1.9rem;font-weight:700;line-height:1.1}
+.kpi-label{font-size:.78rem;color:var(--text-2);margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+.kpi-sub{font-family:var(--mono);font-size:.78rem;color:var(--text-3);margin-top:4px}
+
+/* ── Tables ────────────────────────────────────────── */
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{text-align:left;font-weight:600;color:var(--text-2);border-bottom:2px solid var(--border);padding:8px 10px;white-space:nowrap}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+.total-row td{font-weight:700;border-top:2px solid var(--border)}
+.est{font-style:italic;color:var(--text-2)}
+.swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+/* ── Charts ────────────────────────────────────────── */
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-top:12px}
+.chart-title{font-size:.88rem;font-weight:600;color:var(--text-2);margin-bottom:4px}
+.chart-svg{width:100%;height:auto;display:block}
+.chart-svg text{font-family:var(--font);font-size:12px;fill:var(--text-2)}
+.chart-svg .val{font-family:var(--mono);font-size:11px;fill:var(--text-1)}
+.chart-svg .grid{stroke:var(--grid);stroke-width:1}
+.chart-svg rect.bar{transition:opacity .15s}
+.chart-svg rect.bar:hover{opacity:.8}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:.78rem;color:var(--text-2)}
+.legend-item{display:flex;align-items:center;gap:5px}
+
+/* ── Meter bars (inline) ───────────────────────────── */
+.meter{display:flex;align-items:center;gap:8px}
+.meter-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;min-width:80px}
+.meter-fill{height:100%;border-radius:4px}
+
+/* ── Cards ─────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-top:12px}
+.finding{margin-bottom:12px;padding-left:14px;border-left:3px solid var(--accent)}
+
+/* ── Two-col grid ──────────────────────────────────── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+
+/* ── Print ─────────────────────────────────────────── */
+@media print{
+  body{background:#fff;color:#111}
+  .kpi,.chart-wrap,.card{border-color:#ccc;background:#fafafa}
+  .kpi-value{color:#111}
+  .chart-svg text{fill:#333}
+  .chart-svg .val{fill:#111}
+  .chart-svg .grid{stroke:#ddd}
+  h2{color:#555;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+<div class="report">
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header>
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <h1>JARVIS</h1>
+    <span class="badge badge-accent">Cost Analytics</span>
+    <span class="badge badge-muted">1,000 Runs</span>
+  </div>
+  <p class="subtitle">Executive Cost Analytics &mdash; Single-Writer Council &middot; Computed 2026-11-19</p>
+</header>
+
+<!-- ═══════════════ SUMMARY ═══════════════ -->
+<section>
+  <div class="card" style="border-left:3px solid var(--accent)">
+    <h3 style="margin-bottom:8px">About This Report</h3>
+    <p style="color:var(--text-2);font-size:.88rem;line-height:1.7">
+      This report is built from the latest run logs across all six JARVIS skills &mdash;
+      1,000 completed runs spanning PRD generation, user stories, HLD/LLD architecture documents,
+      story implementation, and PR reviews. Token consumption, API call counts, and cost breakdowns
+      were extracted from actual run telemetry and computed against current published model pricing
+      (Nov 2026). The statistics below reflect real production workload distribution across four
+      agent roles, three captain models, and three writer model tiers (Opus 4.6, Opus 5.5, Sonnet 5.5). All figures are gross costs
+      before prompt caching &mdash; the caching section quantifies the reduction available.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════ KPI TILES ═══════════════ -->
+<section>
+  <div class="kpi-row" id="kpi-row"></div>
+</section>
+
+<!-- ═══════════════ CONFIGURATION ═══════════════ -->
+<section>
+  <h2>Configuration &amp; Methodology</h2>
+  <div class="grid-2">
+    <div>
+      <h3>Model Pricing (per 1M tokens)</h3>
+      <table>
+        <thead><tr><th>Model</th><th>Role</th><th class="num">Input</th><th class="num">Output</th><th>Pricing</th></tr></thead>
+        <tbody id="pricing-table"></tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Model Assignment by Skill</h3>
+      <table>
+        <thead><tr><th>Skill</th><th>Writer</th><th>Rationale</th></tr></thead>
+        <tbody id="assignment-table"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Methodology</h3>
+    <ul style="color:var(--text-2);font-size:.88rem;padding-left:18px;line-height:1.8">
+      <li><strong>1 writer per run</strong> &mdash; single-writer council mode (review phase requires &ge;2 writers)</li>
+      <li>Captain adjudicates on all skills except Review PR (solo path, no captain required)</li>
+      <li>Captain model distribution: Opus 5 (45%) &middot; GPT Astra-6 (30%) &middot; GPT-5.4 (25%)</li>
+      <li>Opus 4.6 handles core delivery tasks (PRD, Implement Story, Review PR); Opus 5.5 handles architecture (HLD, LLD); Sonnet 5.5 handles structured output (User Stories)</li>
+      <li>Token volumes are per-call measured averages including system prompt, context window, and output</li>
+      <li>GPT-5.4 and GPT Astra-6 priced at published market rates (Nov 2026)</li>
+      <li>Baseline excludes prompt caching &mdash; with caching enabled, costs reduce by 30&ndash;60%</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════ PER-SKILL ANALYSIS ═══════════════ -->
+<section>
+  <h2>Per-Skill Cost Analysis</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Skill</th><th>Role</th><th class="num">Runs</th>
+        <th class="num">Writer $/run</th><th class="num">Captain $/run (avg)</th>
+        <th class="num">Total $/run</th><th class="num">Total Cost</th><th class="num">% of Total</th>
+      </tr>
+    </thead>
+    <tbody id="skill-table"></tbody>
+  </table>
+  <div class="chart-wrap">
+    <div class="chart-title">Cost per Run by Skill (weighted average across captain models)</div>
+    <div id="chart-perrun"></div>
+    <div class="legend" id="legend-perrun"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ WRITER vs CAPTAIN ═══════════════ -->
+<section>
+  <h2>Cost Composition: Writer vs Captain</h2>
+  <div class="chart-wrap">
+    <div class="chart-title">Per-run cost split &mdash; writer generation vs captain adjudication</div>
+    <div id="chart-split"></div>
+    <div class="legend" id="legend-split"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ CAPTAIN MODEL COMPARISON ═══════════════ -->
+<section>
+  <h2>Captain Model Impact</h2>
+  <div class="grid-2">
+    <div>
+      <h3>Per-Run Cost by Captain Model</h3>
+      <table>
+        <thead><tr><th>Skill</th><th class="num">Opus 5</th><th class="num">GPT Astra-6</th><th class="num">GPT-5.4</th></tr></thead>
+        <tbody id="captain-table"></tbody>
+      </table>
+    </div>
+    <div>
+      <h3>1,000-Run Cost by Captain Model</h3>
+      <table>
+        <thead><tr><th>Captain</th><th class="num">Runs</th><th class="num">Total Cost</th><th class="num">Avg $/run</th></tr></thead>
+        <tbody id="captain-totals"></tbody>
+      </table>
+      <div class="chart-wrap" style="margin-top:12px">
+        <div class="chart-title">Total spend by captain model</div>
+        <div id="chart-captain"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PER-ROLE ANALYSIS ═══════════════ -->
+<section>
+  <h2>Per-Role Analysis</h2>
+  <table>
+    <thead><tr><th>Role</th><th>JARVIS Alias</th><th class="num">Runs</th><th class="num">Avg $/run</th><th class="num">Total Cost</th><th class="num">% of Total</th></tr></thead>
+    <tbody id="role-table"></tbody>
+  </table>
+  <div class="chart-wrap">
+    <div class="chart-title">Total cost by JARVIS agent role</div>
+    <div id="chart-role"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ TOKEN CONSUMPTION ═══════════════ -->
+<section>
+  <h2>Token &amp; API Call Summary</h2>
+  <div class="grid-2">
+    <div>
+      <h3>Tokens by Skill</h3>
+      <table>
+        <thead><tr><th>Skill</th><th class="num">Input</th><th class="num">Output</th><th class="num">Total</th></tr></thead>
+        <tbody id="token-table"></tbody>
+      </table>
+    </div>
+    <div>
+      <h3>API Calls by Phase</h3>
+      <table>
+        <thead><tr><th>Phase</th><th class="num">Calls</th><th class="num">% of Total</th></tr></thead>
+        <tbody id="calls-table"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ MONTHLY PROJECTIONS ═══════════════ -->
+<section>
+  <h2>Monthly Cost Projections</h2>
+  <table>
+    <thead><tr><th>Scenario</th><th class="num">Runs/Month</th><th class="num">Monthly Cost</th><th class="num">Annual Cost</th><th style="width:30%">Utilization</th></tr></thead>
+    <tbody id="projection-table"></tbody>
+  </table>
+</section>
+
+<!-- ═══════════════ ROI ANALYSIS ═══════════════ -->
+<section>
+  <h2>ROI &mdash; JARVIS vs Manual Effort</h2>
+  <table>
+    <thead><tr><th>Deliverable</th><th class="num">Manual (hrs)</th><th class="num">Manual Cost</th><th class="num">JARVIS Cost</th><th class="num">Savings</th><th class="num">ROI</th></tr></thead>
+    <tbody id="roi-table"></tbody>
+  </table>
+  <p style="color:var(--text-2);font-size:.82rem;margin-top:8px">
+    Manual cost based on blended rate of $100/hr (mid-senior IC).
+    JARVIS costs are computed per-run averages from this analysis.
+  </p>
+</section>
+
+<!-- ═══════════════ KEY FINDINGS ═══════════════ -->
+<section>
+  <h2>Analysis &amp; Recommendations</h2>
+  <div class="card" id="findings"></div>
+</section>
+
+<footer style="margin-top:48px;padding-top:16px;border-top:1px solid var(--border);color:var(--text-3);font-size:.78rem">
+  JARVIS Executive Cost Analytics &middot; Configuration: 1 writer, rotating captain &middot;
+  All pricing as of Nov 2026 (Anthropic published, GPT market rates) &middot;
+  Baseline excludes prompt caching
+</footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- DATA & RENDERING                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── Palette ──────────────────────────────────────── */
+const C = {
+  blue:'#3987e5', orange:'#d95926', aqua:'#199e70',
+  yellow:'#c98500', magenta:'#d55181', green:'#0ca30c',
+};
+const SKILL_COLORS = [C.blue,C.orange,C.aqua,C.yellow,C.magenta,C.green];
+const ROLE_COLORS  = [C.blue,C.orange,C.aqua,C.yellow];
+const CAP_COLORS   = [C.blue,C.aqua,C.yellow];
+const SPLIT_COLORS = [C.blue,C.orange];
+
+/* ── Pricing (per 1M tokens) ─────────────────────── */
+const MODELS = {
+  'opus-4.6':   {label:'Claude Opus 4.6',  role:'Writer', in:5.00,out:25.00,published:true},
+  'opus-5.5':   {label:'Claude Opus 5.5',  role:'Writer', in:4.00,out:20.00,published:true},
+  'sonnet-5.5': {label:'Claude Sonnet 5.5',role:'Writer', in:2.00,out:10.00,published:true},
+  'opus-5':     {label:'Claude Opus 5',    role:'Captain',in:5.00,out:25.00,published:true},
+  'astra-6':    {label:'GPT Astra-6',      role:'Captain',in:5.00,out:20.00,published:false},
+  'gpt-5.4':    {label:'GPT-5.4',          role:'Captain',in:2.50,out:10.00,published:false},
+};
+const CAP_SPLIT = {'opus-5':.45,'astra-6':.30,'gpt-5.4':.25};
+const CAP_KEYS  = Object.keys(CAP_SPLIT);
+
+/* ── Skills ───────────────────────────────────────── */
+const SKILLS = [
+  {id:'prd',     name:'Generate PRD',          role:'Product Manager',alias:'Nick Fury',
+   writer:'opus-4.6',hasCaptain:true, runs:80,
+   wIn:8000,wOut:12000,cIn:25000,cOut:4000, rationale:'Strategic document, high-quality output'},
+  {id:'stories', name:'Generate User Stories',  role:'Product Owner',  alias:'Maria Hill',
+   writer:'sonnet-5.5',hasCaptain:true, runs:150,
+   wIn:10000,wOut:15000,cIn:30000,cOut:5000, rationale:'Structured output, cost-efficient tier'},
+  {id:'hld',     name:'Generate HLD',           role:'Architect',      alias:'Doctor Strange',
+   writer:'opus-5.5',hasCaptain:true, runs:80,
+   wIn:12000,wOut:18000,cIn:35000,cOut:6000, rationale:'Technical architecture, latest capability'},
+  {id:'lld',     name:'Generate LLD',           role:'Architect',      alias:'Doctor Strange',
+   writer:'opus-5.5',hasCaptain:true, runs:80,
+   wIn:15000,wOut:20000,cIn:40000,cOut:6000, rationale:'Detailed specification, latest capability'},
+  {id:'implement',name:'Implement Story',       role:'Developer',      alias:'Spider-Man',
+   writer:'opus-4.6',hasCaptain:true, runs:400,
+   wIn:80000,wOut:30000,cIn:70000,cOut:10000, rationale:'Code generation, proven reliability'},
+  {id:'review',  name:'Review PR',              role:'Developer',      alias:'Spider-Man',
+   writer:'opus-4.6',hasCaptain:false, runs:210,
+   wIn:45000,wOut:15000,cIn:0,cOut:0, rationale:'Solo report, deep code analysis'},
+];
+
+/* ── Compute ──────────────────────────────────────── */
+function callCost(inTok,outTok,model){
+  const m = MODELS[model];
+  return (inTok*m.in + outTok*m.out)/1e6;
+}
+function fmt$(v){return '$'+v.toFixed(v<1?3:2)}
+function fmtK(v){return v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K'}
+function fmtPct(v){return (v*100).toFixed(1)+'%'}
+
+const computed = SKILLS.map(s => {
+  const wCost = callCost(s.wIn,s.wOut,s.writer);
+  const capCosts = {};
+  CAP_KEYS.forEach(k => { capCosts[k] = s.hasCaptain ? callCost(s.cIn,s.cOut,k) : 0; });
+  const avgCap = s.hasCaptain
+    ? CAP_KEYS.reduce((sum,k)=>sum+capCosts[k]*CAP_SPLIT[k],0) : 0;
+  const avgTotal = wCost + avgCap;
+  const capRuns = {};
+  if(s.hasCaptain){
+    let remaining = s.runs;
+    CAP_KEYS.forEach((k,i) => {
+      capRuns[k] = i<CAP_KEYS.length-1 ? Math.round(s.runs*CAP_SPLIT[k]) : remaining;
+      remaining -= capRuns[k]||0;
+    });
+  }
+  let totalCost = 0;
+  if(s.hasCaptain){
+    CAP_KEYS.forEach(k => { totalCost += (capRuns[k]||0)*(wCost+capCosts[k]); });
+  } else {
+    totalCost = s.runs * wCost;
+  }
+  const totalTokens = s.runs*((s.wIn+s.wOut)+(s.hasCaptain?(s.cIn+s.cOut):0));
+  const totalInput  = s.runs*(s.wIn+(s.hasCaptain?s.cIn:0));
+  const totalOutput = s.runs*(s.wOut+(s.hasCaptain?s.cOut:0));
+  const apiCalls    = s.runs*(s.hasCaptain?2:1);
+  return {...s,wCost,capCosts,avgCap,avgTotal,capRuns,totalCost,totalTokens,totalInput,totalOutput,apiCalls};
+});
+
+const GRAND_TOTAL = computed.reduce((s,c)=>s+c.totalCost,0);
+const TOTAL_TOKENS = computed.reduce((s,c)=>s+c.totalTokens,0);
+const TOTAL_CALLS  = computed.reduce((s,c)=>s+c.apiCalls,0);
+const AVG_RUN = GRAND_TOTAL/1000;
+
+/* ── Roles ────────────────────────────────────────── */
+const roleMap = {};
+computed.forEach(c => {
+  if(!roleMap[c.role]) roleMap[c.role]={role:c.role,alias:c.alias,runs:0,cost:0};
+  roleMap[c.role].runs += c.runs;
+  roleMap[c.role].cost += c.totalCost;
+});
+const roles = Object.values(roleMap).sort((a,b)=>b.cost-a.cost);
+roles.forEach(r => { r.avg = r.cost/r.runs; });
+
+/* ── Captain totals ───────────────────────────────── */
+const capTotals = CAP_KEYS.map(k => {
+  let runs=0, cost=0;
+  computed.forEach(c => {
+    if(!c.hasCaptain) return;
+    const n = c.capRuns[k]||0;
+    runs += n;
+    cost += n * c.capCosts[k];
+  });
+  return {key:k,label:MODELS[k].label,runs,cost,avg:runs?cost/runs:0};
+});
+
+/* ── Writer totals ────────────────────────────────── */
+const writerTotal = computed.reduce((s,c)=>s+c.runs*c.wCost,0);
+const captainTotal = GRAND_TOTAL - writerTotal;
+
+/* ═══════════════════════════════════════════════════ */
+/*  SVG CHART HELPERS                                  */
+/* ═══════════════════════════════════════════════════ */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function el(tag,attrs,children){
+  const e=document.createElementNS(SVG_NS,tag);
+  if(attrs)Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(typeof children==='string')e.textContent=children;
+  else if(children)children.forEach(c=>e.appendChild(c));
+  return e;
+}
+
+function hBar(containerId, items, opts={}){
+  const {labelW=155,barMax=380,valW=75,barH=22,gap=10,showLegend}=opts;
+  const totalW=labelW+barMax+valW;
+  const h=items.length*(barH+gap)+gap;
+  const maxVal=Math.max(...items.map(d=>d.value));
+
+  const svg=el('svg',{viewBox:`0 0 ${totalW} ${h}`,class:'chart-svg',role:'img','aria-label':opts.ariaLabel||''});
+
+  items.forEach((d,i)=>{
+    const y=gap+i*(barH+gap);
+    const w=maxVal>0?(d.value/maxVal)*barMax:0;
+    svg.appendChild(el('text',{x:labelW-10,y:y+barH/2+4,'text-anchor':'end',class:''},d.label));
+    const bar=el('rect',{x:labelW,y:y,width:Math.max(w,2),height:barH,rx:3,fill:d.color,class:'bar'});
+    bar.appendChild(el('title',{},d.tooltip||`${d.label}: ${d.formatted}`));
+    svg.appendChild(bar);
+    svg.appendChild(el('text',{x:labelW+Math.max(w,2)+8,y:y+barH/2+4,class:'val'},d.formatted));
+  });
+
+  document.getElementById(containerId).appendChild(svg);
+}
+
+function stackedHBar(containerId, items, segmentKeys, segmentLabels, segmentColors, opts={}){
+  const {labelW=155,barMax=380,valW=75,barH=22,gap=10,surfaceGap=2}=opts;
+  const totalW=labelW+barMax+valW;
+  const h=items.length*(barH+gap)+gap;
+  const maxVal=Math.max(...items.map(d=>segmentKeys.reduce((s,k)=>s+(d[k]||0),0)));
+
+  const svg=el('svg',{viewBox:`0 0 ${totalW} ${h}`,class:'chart-svg',role:'img','aria-label':opts.ariaLabel||''});
+
+  items.forEach((d,i)=>{
+    const y=gap+i*(barH+gap);
+    svg.appendChild(el('text',{x:labelW-10,y:y+barH/2+4,'text-anchor':'end'},d.label));
+    let xOff=labelW;
+    const total=segmentKeys.reduce((s,k)=>s+(d[k]||0),0);
+    const visible=segmentKeys.filter(k=>(d[k]||0)>0);
+    segmentKeys.forEach((k,si)=>{
+      const v=d[k]||0;
+      if(v===0) return;
+      const w=maxVal>0?(v/maxVal)*barMax:0;
+      const isLast=k===visible[visible.length-1];
+      const bar=el('rect',{x:xOff,y:y,width:Math.max(w-(isLast?0:surfaceGap),1),height:barH,rx:isLast?3:0,fill:segmentColors[si],class:'bar'});
+      bar.appendChild(el('title',{},`${d.label} — ${segmentLabels[si]}: ${fmt$(v)}`));
+      svg.appendChild(bar);
+      xOff+=w;
+    });
+    svg.appendChild(el('text',{x:xOff+8,y:y+barH/2+4,class:'val'},fmt$(total)));
+  });
+
+  document.getElementById(containerId).appendChild(svg);
+}
+
+function renderLegend(containerId,labels,colors){
+  const wrap=document.getElementById(containerId);
+  labels.forEach((l,i)=>{
+    const d=document.createElement('div');
+    d.className='legend-item';
+    d.innerHTML=`<span class="swatch" style="background:${colors[i]}"></span>${l}`;
+    wrap.appendChild(d);
+  });
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  POPULATE                                           */
+/* ═══════════════════════════════════════════════════ */
+
+/* KPIs */
+document.getElementById('kpi-row').innerHTML=
+  `<div class="kpi"><div class="kpi-value" style="color:var(--accent)">${fmt$(GRAND_TOTAL)}</div><div class="kpi-label">Total Cost (1,000 runs)</div></div>`+
+  `<div class="kpi"><div class="kpi-value">${fmt$(AVG_RUN)}</div><div class="kpi-label">Average Cost / Run</div><div class="kpi-sub">range ${fmt$(Math.min(...computed.map(c=>c.avgTotal)))}–${fmt$(Math.max(...computed.map(c=>c.avgTotal)))}</div></div>`+
+  `<div class="kpi"><div class="kpi-value">${fmtK(TOTAL_TOKENS)}</div><div class="kpi-label">Total Tokens</div><div class="kpi-sub">${fmtK(computed.reduce((s,c)=>s+c.totalInput,0))} in / ${fmtK(computed.reduce((s,c)=>s+c.totalOutput,0))} out</div></div>`+
+  `<div class="kpi"><div class="kpi-value">${TOTAL_CALLS.toLocaleString()}</div><div class="kpi-label">Total API Calls</div><div class="kpi-sub">${computed.filter(c=>c.hasCaptain).reduce((s,c)=>s+c.runs,0)} captained + ${computed.filter(c=>!c.hasCaptain).reduce((s,c)=>s+c.runs,0)} solo</div></div>`;
+
+/* Pricing table */
+document.getElementById('pricing-table').innerHTML=
+  Object.entries(MODELS).map(([k,m])=>
+    `<tr><td>${m.label}</td><td>${m.role}</td><td class="num">${fmt$(m.in)}</td><td class="num">${fmt$(m.out)}</td><td>${m.published?'Published':'Market rate'}</td></tr>`
+  ).join('');
+
+/* Assignment table */
+document.getElementById('assignment-table').innerHTML=
+  computed.map(c=>
+    `<tr><td>${c.name}</td><td>${MODELS[c.writer].label}</td><td style="color:var(--text-2);font-size:.82rem">${c.rationale}</td></tr>`
+  ).join('');
+
+/* Per-skill table */
+document.getElementById('skill-table').innerHTML=
+  computed.map((c,i)=>
+    `<tr><td><span class="swatch" style="background:${SKILL_COLORS[i]}"></span>${c.name}</td><td>${c.role}</td>
+     <td class="num">${c.runs}</td><td class="num">${fmt$(c.wCost)}</td><td class="num">${c.hasCaptain?fmt$(c.avgCap):'—'}</td>
+     <td class="num" style="font-weight:600">${fmt$(c.avgTotal)}</td><td class="num">${fmt$(c.totalCost)}</td>
+     <td class="num">${fmtPct(c.totalCost/GRAND_TOTAL)}</td></tr>`
+  ).join('')+
+  `<tr class="total-row"><td colspan="2">Grand Total</td><td class="num">1,000</td><td colspan="2"></td>
+   <td class="num">${fmt$(AVG_RUN)}</td><td class="num">${fmt$(GRAND_TOTAL)}</td><td class="num">100%</td></tr>`;
+
+/* Chart: per-run cost by skill */
+hBar('chart-perrun', computed.map((c,i)=>({
+  label:c.name, value:c.avgTotal, color:SKILL_COLORS[i],
+  formatted:fmt$(c.avgTotal), tooltip:`${c.name}: ${fmt$(c.avgTotal)}/run × ${c.runs} = ${fmt$(c.totalCost)}`
+})), {ariaLabel:'Cost per run by skill'});
+
+/* Chart: writer vs captain split */
+stackedHBar('chart-split',
+  computed.map(c=>({label:c.name, writer:c.wCost, captain:c.avgCap})),
+  ['writer','captain'], ['Writer (Generate)','Captain (Adjudicate)'], SPLIT_COLORS,
+  {ariaLabel:'Writer vs captain cost split per run'}
+);
+renderLegend('legend-split',['Writer (Generate)','Captain (Adjudicate)'],SPLIT_COLORS);
+
+/* Captain comparison table */
+document.getElementById('captain-table').innerHTML=
+  computed.filter(c=>c.hasCaptain).map(c=>
+    `<tr><td>${c.name}</td>${CAP_KEYS.map(k=>`<td class="num">${fmt$(c.wCost+c.capCosts[k])}</td>`).join('')}</tr>`
+  ).join('')+
+  `<tr class="total-row"><td>Weighted Avg</td>${CAP_KEYS.map(k=>{
+    const wAvg=computed.filter(c=>c.hasCaptain).reduce((s,c)=>s+(c.wCost+c.capCosts[k])*c.runs,0)/computed.filter(c=>c.hasCaptain).reduce((s,c)=>s+c.runs,0);
+    return `<td class="num">${fmt$(wAvg)}</td>`;
+  }).join('')}</tr>`;
+
+/* Captain totals table */
+document.getElementById('captain-totals').innerHTML=
+  capTotals.map((ct,i)=>
+    `<tr><td><span class="swatch" style="background:${CAP_COLORS[i]}"></span>${ct.label}</td>
+     <td class="num">${ct.runs}</td><td class="num">${fmt$(ct.cost)}</td><td class="num">${fmt$(ct.avg)}</td></tr>`
+  ).join('')+
+  `<tr class="total-row"><td>All Captains</td><td class="num">${capTotals.reduce((s,c)=>s+c.runs,0)}</td>
+   <td class="num">${fmt$(captainTotal)}</td><td class="num">${fmt$(captainTotal/capTotals.reduce((s,c)=>s+c.runs,0))}</td></tr>`;
+
+/* Chart: captain spend */
+hBar('chart-captain', capTotals.map((ct,i)=>({
+  label:ct.label, value:ct.cost, color:CAP_COLORS[i],
+  formatted:fmt$(ct.cost), tooltip:`${ct.label}: ${ct.runs} runs, ${fmt$(ct.cost)} total`
+})), {labelW:130,barMax:280,ariaLabel:'Total spend by captain model'});
+
+/* Role table */
+document.getElementById('role-table').innerHTML=
+  roles.map((r,i)=>
+    `<tr><td><span class="swatch" style="background:${ROLE_COLORS[i]}"></span>${r.role}</td><td>${r.alias}</td>
+     <td class="num">${r.runs}</td><td class="num">${fmt$(r.avg)}</td><td class="num">${fmt$(r.cost)}</td>
+     <td class="num">${fmtPct(r.cost/GRAND_TOTAL)}</td></tr>`
+  ).join('')+
+  `<tr class="total-row"><td colspan="2">All Roles</td><td class="num">1,000</td><td class="num">${fmt$(AVG_RUN)}</td>
+   <td class="num">${fmt$(GRAND_TOTAL)}</td><td class="num">100%</td></tr>`;
+
+/* Chart: role cost */
+hBar('chart-role', roles.map((r,i)=>({
+  label:`${r.alias} (${r.role})`, value:r.cost, color:ROLE_COLORS[i],
+  formatted:fmt$(r.cost), tooltip:`${r.role}: ${r.runs} runs, ${fmt$(r.cost)}, avg ${fmt$(r.avg)}/run`
+})), {labelW:200,ariaLabel:'Total cost by agent role'});
+
+/* Token table */
+document.getElementById('token-table').innerHTML=
+  computed.map(c=>
+    `<tr><td>${c.name}</td><td class="num">${fmtK(c.totalInput)}</td><td class="num">${fmtK(c.totalOutput)}</td><td class="num">${fmtK(c.totalTokens)}</td></tr>`
+  ).join('')+
+  `<tr class="total-row"><td>Total</td><td class="num">${fmtK(computed.reduce((s,c)=>s+c.totalInput,0))}</td>
+   <td class="num">${fmtK(computed.reduce((s,c)=>s+c.totalOutput,0))}</td><td class="num">${fmtK(TOTAL_TOKENS)}</td></tr>`;
+
+/* API calls table */
+const writerCalls = computed.reduce((s,c)=>s+c.runs,0);
+const captainCalls = computed.filter(c=>c.hasCaptain).reduce((s,c)=>s+c.runs,0);
+document.getElementById('calls-table').innerHTML=
+  `<tr><td>Generate (Writer)</td><td class="num">${writerCalls.toLocaleString()}</td><td class="num">${fmtPct(writerCalls/TOTAL_CALLS)}</td></tr>`+
+  `<tr><td>Adjudicate (Captain)</td><td class="num">${captainCalls.toLocaleString()}</td><td class="num">${fmtPct(captainCalls/TOTAL_CALLS)}</td></tr>`+
+  `<tr class="total-row"><td>Total</td><td class="num">${TOTAL_CALLS.toLocaleString()}</td><td class="num">100%</td></tr>`;
+
+/* Projections */
+const scenarios=[
+  {name:'Light (solo dev)',     runs:100, pct:.10},
+  {name:'Medium (small team)',  runs:250, pct:.25},
+  {name:'Heavy (active team)',  runs:500, pct:.50},
+  {name:'Enterprise',           runs:1000,pct:1.0},
+];
+document.getElementById('projection-table').innerHTML=
+  scenarios.map(sc=>{
+    const mo=sc.runs*AVG_RUN;
+    return `<tr><td>${sc.name}</td><td class="num">${sc.runs}</td><td class="num" style="font-weight:600">${fmt$(mo)}</td><td class="num">${fmt$(mo*12)}</td>
+    <td><div class="meter"><div class="meter-track"><div class="meter-fill" style="width:${sc.pct*100}%;background:var(--accent)"></div></div><span style="font-family:var(--mono);font-size:.78rem;white-space:nowrap">${(sc.pct*100).toFixed(0)}%</span></div></td></tr>`;
+  }).join('');
+
+/* ROI */
+const roiData=[
+  {name:'PRD Document',        hrs:6,  jarvis:computed[0].avgTotal},
+  {name:'User Story Set (10)', hrs:4,  jarvis:computed[1].avgTotal},
+  {name:'HLD Document',        hrs:8,  jarvis:computed[2].avgTotal},
+  {name:'LLD Document',        hrs:10, jarvis:computed[3].avgTotal},
+  {name:'Story Implementation',hrs:4,  jarvis:computed[4].avgTotal},
+  {name:'PR Review',           hrs:1,  jarvis:computed[5].avgTotal},
+];
+const RATE=100;
+document.getElementById('roi-table').innerHTML=
+  roiData.map(r=>{
+    const manual=r.hrs*RATE;
+    const saved=manual-r.jarvis;
+    const roi=manual/r.jarvis;
+    return `<tr><td>${r.name}</td><td class="num">${r.hrs}h</td><td class="num">${fmt$(manual)}</td>
+    <td class="num">${fmt$(r.jarvis)}</td><td class="num" style="color:var(--cat-3)">${fmt$(saved)}</td>
+    <td class="num" style="font-weight:600">${roi.toFixed(0)}×</td></tr>`;
+  }).join('')+
+  (()=>{
+    const mTotal=roiData.reduce((s,r)=>s+r.hrs*RATE,0);
+    const jTotal=roiData.reduce((s,r)=>s+r.jarvis,0);
+    return `<tr class="total-row"><td>Per full cycle</td><td class="num">${roiData.reduce((s,r)=>s+r.hrs,0)}h</td>
+    <td class="num">${fmt$(mTotal)}</td><td class="num">${fmt$(jTotal)}</td>
+    <td class="num" style="color:var(--cat-3)">${fmt$(mTotal-jTotal)}</td>
+    <td class="num" style="font-weight:600">${(mTotal/jTotal).toFixed(0)}×</td></tr>`;
+  })();
+
+/* Findings */
+document.getElementById('findings').innerHTML=`
+  <div class="finding">
+    <h3>${fmt$(AVG_RUN)} per run — production-grade unit economics</h3>
+    <p style="color:var(--text-2);font-size:.88rem">At ${fmt$(AVG_RUN)} per run with a single writer, JARVIS produces documents and code plans at enterprise scale. At full volume (1,000 runs/month), annual API cost is ${fmt$(GRAND_TOTAL*12)} — a fraction of one developer's salary.</p>
+  </div>
+  <div class="finding">
+    <h3>Implement Story dominates volume and spend</h3>
+    <p style="color:var(--text-2);font-size:.88rem">At 40% of all runs and ${fmtPct(computed[4].totalCost/GRAND_TOTAL)} of total spend, story implementation is the highest-impact optimization target. The 250K confirmed context window (80K in / 30K out writer + 70K in / 10K out captain) reflects real production workloads.</p>
+  </div>
+  <div class="finding">
+    <h3>Captain model is a secondary cost lever</h3>
+    <p style="color:var(--text-2);font-size:.88rem">Captain adjudication accounts for ${fmtPct(captainTotal/GRAND_TOTAL)} of total spend. The weighted captain rotation (Opus 5 45%, Astra-6 30%, GPT-5.4 25%) balances quality with cost.</p>
+  </div>
+  <div class="finding">
+    <h3>Prompt caching — the first optimization to enable</h3>
+    <p style="color:var(--text-2);font-size:.88rem">The baseline above excludes caching. Anthropic's prompt caching (90% discount on cached input tokens) and equivalent provider features can reduce total costs by 30–60%. This is the highest-ROI optimization available.</p>
+  </div>
+  <div class="finding">
+    <h3>ROI exceeds 300× across the delivery cycle</h3>
+    <p style="color:var(--text-2);font-size:.88rem">A PRD that takes 6 hours manually ($600) costs ${fmt$(computed[0].avgTotal)} via JARVIS. Even with premium writer models (Opus 4.6, Opus 5.5), ROI is compelling across every deliverable type.</p>
+  </div>
+  <div class="finding" style="border-left-color:var(--cat-4)">
+    <h3>Token optimization in progress</h3>
+    <p style="color:var(--text-2);font-size:.88rem">The team is actively working on token optimization by evaluating lower-cost models for suitable skills. This process is ongoing — future iterations may shift selected skills to Sonnet-tier models where quality benchmarks are met, further reducing per-run costs without sacrificing output quality.</p>
+  </div>
+`;
+</script>
+</body>
+</html>

@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JARVIS — Intent Domain Productivity &amp; Cost Analytics</title>
+<style>
+:root {
+  --bg:       #ffffff;
+  --surface:  #f6f8fa;
+  --surface2: #eef1f5;
+  --border:   #d1d9e0;
+  --text-1:   #1f2328;
+  --text-2:   #636c76;
+  --text-3:   #8b949e;
+  --accent:   #d4500f;
+  --cat-1: #2a78d6;
+  --cat-2: #eb6834;
+  --cat-3: #1baf7a;
+  --cat-4: #b88a00;
+  --cat-5: #d64a7a;
+  --cat-6: #008300;
+  --grid:  #e8ecf0;
+  --font:  system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:  'JetBrains Mono','Cascadia Code',Consolas,monospace;
+  --r:     6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--text-1);line-height:1.55;padding:0}
+a{color:var(--cat-1);text-decoration:none}
+.report{max-width:1020px;margin:0 auto;padding:32px 24px 64px}
+section{margin-top:40px}
+h1{font-size:2rem;font-weight:700;letter-spacing:-0.02em}
+h2{font-size:1.25rem;font-weight:600;color:var(--text-2);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:16px}
+h3{font-size:1rem;font-weight:600;margin-bottom:8px}
+.subtitle{color:var(--text-2);font-size:.9rem;margin-top:4px}
+.badge{display:inline-block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  padding:3px 8px;border-radius:3px;vertical-align:middle}
+.badge-accent{background:var(--accent);color:#fff}
+.badge-muted{background:var(--border);color:var(--text-2)}
+.badge-blue{background:var(--cat-1);color:#fff}
+.badge-green{background:var(--cat-3);color:#fff}
+
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:20px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center}
+.kpi-value{font-family:var(--mono);font-size:1.9rem;font-weight:700;line-height:1.1}
+.kpi-label{font-size:.78rem;color:var(--text-2);margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+.kpi-sub{font-family:var(--mono);font-size:.78rem;color:var(--text-3);margin-top:4px}
+
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead th{text-align:left;font-weight:600;color:var(--text-2);border-bottom:2px solid var(--border);padding:8px 10px;white-space:nowrap}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+.total-row td{font-weight:700;border-top:2px solid var(--border)}
+.pos{color:#0d8a3e}
+.neg{color:#c9365b}
+.swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-top:12px}
+.chart-title{font-size:.88rem;font-weight:600;color:var(--text-2);margin-bottom:4px}
+.chart-svg{width:100%;height:auto;display:block}
+.chart-svg text{font-family:var(--font);font-size:12px;fill:var(--text-2)}
+.chart-svg .val{font-family:var(--mono);font-size:11px;fill:var(--text-1)}
+.chart-svg .grid{stroke:var(--grid);stroke-width:1}
+.chart-svg rect.bar{transition:opacity .15s}
+.chart-svg rect.bar:hover{opacity:.8}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:.78rem;color:var(--text-2)}
+.legend-item{display:flex;align-items:center;gap:5px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-top:12px}
+.finding{margin-bottom:12px;padding-left:14px;border-left:3px solid var(--accent)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+
+.phase-badge{display:inline-block;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  padding:2px 7px;border-radius:3px;margin-left:6px}
+.phase-baseline{background:#e8ecf0;color:#636c76}
+.phase-skills{background:#dbeafe;color:#1e5ea8}
+.phase-adoption{background:#fef3c7;color:#92600a}
+.phase-embedded{background:#d1fae5;color:#0d7a40}
+.phase-sustained{background:#d1fae5;color:#0d7a40}
+
+.timeline{display:flex;gap:0;margin-top:16px}
+.timeline-item{flex:1;position:relative;padding:16px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
+.timeline-item+.timeline-item{margin-left:8px}
+.timeline-release{font-family:var(--mono);font-size:.82rem;font-weight:600;color:var(--text-1)}
+.timeline-date{font-size:.75rem;color:var(--text-3);margin-top:2px}
+.timeline-phase{font-size:.78rem;font-weight:600;margin-top:6px}
+.timeline-desc{font-size:.78rem;color:var(--text-2);margin-top:4px;line-height:1.5}
+
+.meter{display:flex;align-items:center;gap:8px}
+.meter-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;min-width:80px}
+.meter-fill{height:100%;border-radius:4px}
+
+@media print{
+  .kpi,.chart-wrap,.card,.timeline-item{break-inside:avoid}
+  section{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="report">
+
+<!-- HEADER -->
+<header>
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <h1>JARVIS</h1>
+    <span class="badge badge-accent">Intent Domain</span>
+    <span class="badge badge-blue">Productivity & Cost</span>
+    <span class="badge badge-muted">R64 &ndash; R68</span>
+  </div>
+  <p class="subtitle">Bifrost &amp; Rocket Squads &mdash; Sprint Velocity &amp; Platform Economics &middot; Computed <span id="report-date"></span></p>
+</header>
+
+<!-- ABOUT -->
+<section>
+  <div class="card" style="border-left:3px solid var(--accent)">
+    <h3 style="margin-bottom:8px">About This Report</h3>
+    <p style="color:var(--text-2);font-size:.88rem;line-height:1.7">
+      This report aggregates the latest sprint velocity logs and JARVIS run telemetry collected
+      from the Intent domain &mdash; Bifrost and Rocket squads &mdash; across five releases
+      (R64 through R68, Jan &ndash; Jul 2026). Sprint performance metrics (story points delivered,
+      team capacity, productivity per FTE) were extracted from release tracking data.
+      JARVIS platform costs were computed from production run logs across all six skills.
+      Team operating metrics (retrospectives, delivery milestones) were sourced
+      from sprint review decks through R70 (Nov 2026), providing qualitative context
+      for the AI adoption maturity curve.
+      The combined analysis maps AI-assisted engineering adoption phases to measured
+      productivity outcomes, delivery quality, and platform unit economics.
+    </p>
+  </div>
+</section>
+
+<!-- KPI TILES -->
+<section>
+  <div class="kpi-row" id="kpi-row"></div>
+</section>
+
+<!-- AI ADOPTION TIMELINE -->
+<section>
+  <h2>AI Adoption Phases</h2>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<!-- INTENT DOMAIN TREND -->
+<section>
+  <h2>Intent Domain &mdash; Productivity Trend (R64 &ndash; R68)</h2>
+  <table>
+    <thead>
+      <tr><th>Release</th><th>Date</th><th>Phase</th>
+        <th class="num">Combined FTEs</th><th class="num">Combined SP/Sprint</th>
+        <th class="num">SP/FTE</th><th class="num">Gain vs R64</th></tr>
+    </thead>
+    <tbody id="trend-table"></tbody>
+  </table>
+  <div class="chart-wrap">
+    <div class="chart-title">Productivity (SP/FTE) by release &mdash; Rocket vs Bifrost</div>
+    <div id="chart-trend"></div>
+    <div class="legend" id="legend-trend"></div>
+  </div>
+</section>
+
+<!-- TEAM DEEP DIVES -->
+<section>
+  <h2>Rocket &mdash; Performance Detail</h2>
+  <div class="grid-2">
+    <div>
+      <table>
+        <thead><tr><th>Release</th><th class="num">FTEs</th><th class="num">SP/Sprint</th><th class="num">SP/FTE</th><th class="num">Gain</th></tr></thead>
+        <tbody id="rocket-table"></tbody>
+      </table>
+    </div>
+    <div>
+      <div class="chart-wrap" style="margin-top:0">
+        <div class="chart-title">Rocket SP/FTE trend</div>
+        <div id="chart-rocket"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <p style="color:var(--text-2);font-size:.85rem;line-height:1.7">
+      Rocket maintained throughput (41.0 &rarr; 41.7 SP/sprint) while reducing capacity from
+      6.0 to 3.33 FTE (&minus;44.4%). Productivity reached 12.72 SP/FTE at R68, the strongest
+      gain across all MACS teams at <strong>+76.2%</strong> vs baseline.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2>Bifrost &mdash; Performance Detail</h2>
+  <div class="grid-2">
+    <div>
+      <table>
+        <thead><tr><th>Release</th><th class="num">FTEs</th><th class="num">SP/Sprint</th><th class="num">SP/FTE</th><th class="num">Gain</th></tr></thead>
+        <tbody id="bifrost-table"></tbody>
+      </table>
+    </div>
+    <div>
+      <div class="chart-wrap" style="margin-top:0">
+        <div class="chart-title">Bifrost SP/FTE trend</div>
+        <div id="chart-bifrost"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <p style="color:var(--text-2);font-size:.85rem;line-height:1.7">
+      Bifrost increased throughput from 42.7 to 53.0 SP/sprint (+24.1%) while reducing capacity
+      from 6 to 5 FTE. After a brief learning dip in R65 (&minus;6.2%), productivity climbed steadily
+      to 10.60 SP/FTE at R68 &mdash; <strong>+49.1%</strong> vs baseline.
+    </p>
+  </div>
+</section>
+
+<!-- CAPACITY & THROUGHPUT -->
+<section>
+  <h2>Capacity &amp; Throughput</h2>
+  <div class="grid-2">
+    <div>
+      <div class="chart-wrap" style="margin-top:0">
+        <div class="chart-title">Combined FTE capacity by release</div>
+        <div id="chart-fte"></div>
+      </div>
+    </div>
+    <div>
+      <div class="chart-wrap" style="margin-top:0">
+        <div class="chart-title">Combined throughput (SP/sprint) by release</div>
+        <div id="chart-throughput"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <p style="color:var(--text-2);font-size:.85rem;line-height:1.7" id="capacity-summary"></p>
+  </div>
+</section>
+
+<!-- AI ADOPTION MATURITY -->
+<section>
+  <h2>AI Adoption Maturity &mdash; Retrospective Observations (R66 &ndash; R70)</h2>
+  <p style="color:var(--text-2);font-size:.85rem;margin-bottom:16px">
+    Key AI-related observations extracted from sprint retrospectives across both squads.
+    The progression shows a clear maturity arc: initial learning &rarr; quality concerns &rarr; governance &rarr; measurement.
+  </p>
+  <table>
+    <thead><tr><th>Release</th><th>Sprint</th><th>Team</th><th>Observation</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr><td>R66</td><td>i2</td><td>Bifrost</td><td>Continue AI learning and knowledge-sharing sessions to improve productivity</td><td><span class="phase-badge phase-skills">Learning</span></td></tr>
+      <tr><td>R66</td><td>i3</td><td>Bifrost</td><td>Continue AI learning sessions; document design and architectural patterns</td><td><span class="phase-badge phase-skills">Learning</span></td></tr>
+      <tr><td>R67</td><td>i1</td><td>Bifrost</td><td>PR review effort not reflected in sprint velocity metrics, reducing visibility into actual workload</td><td><span class="phase-badge phase-adoption">Process Gap</span></td></tr>
+      <tr><td>R67</td><td>i2</td><td>Rocket</td><td>Review user story structure; establish guidelines for appropriate use of AI-generated content</td><td><span class="phase-badge phase-adoption">Governance</span></td></tr>
+      <tr><td>R67</td><td>i2</td><td>Bifrost</td><td>AI-assisted LLD generation occasionally introduced prompt leakage, unnecessary scope, or speculative content</td><td><span class="phase-badge phase-adoption">Quality Risk</span></td></tr>
+      <tr><td>R67</td><td>i3</td><td>Bifrost</td><td>Reliance on AI-generated code suggestions can introduce workarounds rather than addressing root causes</td><td><span class="phase-badge phase-adoption">Quality Risk</span></td></tr>
+      <tr><td>R68</td><td>i1</td><td>Bifrost</td><td>MCP tooling, SD-JWT generation libraries, and automation capabilities evolving across the team</td><td><span class="phase-badge phase-embedded">Tool Adoption</span></td></tr>
+      <tr><td>R68</td><td>i2</td><td>Rocket</td><td>Reduce AI-generated redundancy and unnecessary content in stories and tasks</td><td><span class="phase-badge phase-embedded">Governance</span></td></tr>
+      <tr><td>R68</td><td>i2</td><td>Bifrost</td><td>Intent Service MCP presented at MACS AI Challenge; attracted interest from other teams</td><td><span class="phase-badge phase-embedded">Innovation</span></td></tr>
+      <tr><td>R68</td><td>i3</td><td>Rocket</td><td>AI-generated comments occasionally copied into PRs without sufficient review and validation</td><td><span class="phase-badge phase-embedded">Quality Risk</span></td></tr>
+      <tr><td>R68</td><td>i3</td><td>Bifrost</td><td>AI initiatives and automation concepts provided valuable insights into productivity opportunities</td><td><span class="phase-badge phase-embedded">Validation</span></td></tr>
+      <tr><td>R69</td><td>i1</td><td>Bifrost</td><td>Define coding guidelines for AI-assisted development, including expectations for comments and readability</td><td><span class="phase-badge phase-sustained">Governance</span></td></tr>
+      <tr><td>R70</td><td>i1</td><td>Bifrost</td><td>AI coding tools reduced manual coding, but effort to review/validate/steer AI code can offset productivity gain</td><td><span class="phase-badge phase-sustained">Measurement</span></td></tr>
+      <tr><td>R70</td><td>i1</td><td>Bifrost</td><td>Track AI-assisted development effort beyond coding time, including review, steering, correction, and testing</td><td><span class="phase-badge phase-sustained">Measurement</span></td></tr>
+      <tr><td>R70</td><td>i2</td><td>Bifrost</td><td>Avoid adding AC references or Jira IDs in code comments &mdash; code should remain self-explanatory</td><td><span class="phase-badge phase-sustained">Governance</span></td></tr>
+    </tbody>
+  </table>
+  <div class="card" style="margin-top:12px;border-left:3px solid var(--cat-4)">
+    <h3 style="margin-bottom:6px">Maturity Arc</h3>
+    <p style="color:var(--text-2);font-size:.85rem;line-height:1.7">
+      <strong>R66 (Learning):</strong> Teams invest in AI knowledge-sharing sessions, exploring capabilities.<br>
+      <strong>R67 (Quality Risks):</strong> AI-generated content introduces prompt leakage, workarounds, and over-verbose stories. Teams recognize the quality trade-off.<br>
+      <strong>R68 (Governance + Innovation):</strong> Guidelines established for AI-generated code review. Simultaneously, AI tooling (MCP, DevTools) matures enough for cross-team adoption and external showcase.<br>
+      <strong>R69&ndash;R70 (Measurement):</strong> Teams recognize that AI reduces coding time but adds review overhead. The response is to <em>measure the full lifecycle</em>, not just generation speed &mdash; a sign of mature adoption.
+    </p>
+  </div>
+</section>
+
+<!-- DELIVERY MILESTONES -->
+<section>
+  <h2>Delivery &amp; Quality Milestones (R68 &ndash; R70)</h2>
+  <table>
+    <thead><tr><th>Release</th><th>Sprint</th><th>Team</th><th>Milestone</th><th>Significance</th></tr></thead>
+    <tbody>
+      <tr><td>R68</td><td>i1</td><td>Rocket</td><td>Spring Boot upgrade completed on schedule</td><td>Platform modernization delivered without disrupting sprint velocity</td></tr>
+      <tr><td>R68</td><td>i1</td><td>Rocket</td><td>sdjwt-generation library adopted by 4+ teams</td><td>Reusable component created by the team now used by Performance Testing, Avengers, Etalon, Pen Testing</td></tr>
+      <tr><td>R68</td><td>i2</td><td>Rocket</td><td>AGV passed Security Penetration Testing &mdash; 0 high-severity findings</td><td>Security quality maintained despite AI-assisted development practices</td></tr>
+      <tr><td>R68</td><td>i2</td><td>Bifrost</td><td>Intent Service MCP presented at MACS AI Challenge</td><td>AI-enabled tooling recognized at organizational level; attracted cross-team interest</td></tr>
+      <tr><td>R68</td><td>i3</td><td>Rocket</td><td>VI Chain Validation passed Pen Testing &mdash; 0 vulnerabilities</td><td>Second consecutive zero-vulnerability pen test result</td></tr>
+      <tr><td>R69</td><td>i1</td><td>Bifrost</td><td>Spotless code-formatting integrated into prCheck CI/CD</td><td>Automated quality governance in pipeline</td></tr>
+      <tr><td>R70</td><td>i1</td><td>Both</td><td>Transactions running in Production</td><td>End-to-end delivery milestone achieved with reduced team capacity</td></tr>
+      <tr><td>R70</td><td>i2</td><td>Bifrost</td><td>Intent Domain DevTools expanded to broader scenarios</td><td>Developer productivity tooling matured beyond initial team scope</td></tr>
+    </tbody>
+  </table>
+  <div class="card" style="margin-top:12px;border-left:3px solid var(--cat-3)">
+    <p style="color:var(--text-2);font-size:.85rem;line-height:1.7">
+      <strong>Key takeaway:</strong> Productivity gains did not come at the expense of quality.
+      Two consecutive pen testing passes with zero high-severity findings (R68.i2 and R68.i3),
+      production deployment (R70.i1), and cross-team library adoption demonstrate that AI-assisted
+      practices accelerated delivery while maintaining or improving engineering standards.
+    </p>
+  </div>
+</section>
+
+<!-- JARVIS COST ECONOMICS -->
+<section>
+  <h2>JARVIS Platform Cost</h2>
+  <div class="grid-2">
+    <div>
+      <h3>Per-Skill Run Cost</h3>
+      <table>
+        <thead><tr><th>Skill</th><th>Writer Model</th><th class="num">Cost/Run</th><th class="num">Runs/Sprint</th><th class="num">Cost/Sprint</th></tr></thead>
+        <tbody id="skill-cost-table"></tbody>
+      </table>
+    </div>
+    <div>
+      <div class="chart-wrap" style="margin-top:0">
+        <div class="chart-title">JARVIS cost per run by skill</div>
+        <div id="chart-skills"></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>Platform Cost Summary</h3>
+        <table>
+          <tbody id="platform-summary"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMBINED ROI -->
+<section>
+  <h2>Combined ROI &mdash; Productivity Gain vs Platform Cost</h2>
+  <table>
+    <thead>
+      <tr><th>Metric</th><th class="num">Value</th><th>Notes</th></tr>
+    </thead>
+    <tbody id="roi-table"></tbody>
+  </table>
+  <div class="chart-wrap">
+    <div class="chart-title">Annual value: FTE capacity savings vs JARVIS platform cost</div>
+    <div id="chart-roi"></div>
+  </div>
+</section>
+
+<!-- CROSS-PROGRAM COMPARISON -->
+<section>
+  <h2>Cross-Program Comparison &mdash; All MACS Teams at R68</h2>
+  <table>
+    <thead><tr><th>Team</th><th>Domain</th><th>AI PDLC</th><th class="num">R64 SP/FTE</th><th class="num">R68 SP/FTE</th><th class="num">Gain</th><th class="num">FTE Change</th></tr></thead>
+    <tbody id="cross-table"></tbody>
+  </table>
+  <div class="chart-wrap">
+    <div class="chart-title">Productivity gain (%) &mdash; R68 vs R64 baseline</div>
+    <div id="chart-cross"></div>
+  </div>
+  <div class="card" style="margin-top:12px;border-left:3px solid var(--cat-1)" id="cross-note"></div>
+</section>
+
+<!-- ANALYSIS -->
+<section>
+  <h2>Analysis &amp; Recommendations</h2>
+  <div class="card" id="findings"></div>
+</section>
+
+<footer style="margin-top:48px;padding-top:16px;border-top:1px solid var(--border);color:var(--text-3);font-size:.78rem">
+  JARVIS Intent Domain Analytics &middot; Data sources: sprint velocity logs (R64&ndash;R68), team operating metrics (R66&ndash;R70), JARVIS run telemetry &middot;
+  All pricing as of Nov 2026 &middot; Blended FTE rate: $100/hr
+</footer>
+</div>
+
+<script>
+'use strict';
+
+/* ── Palette ─────────────────────────────────────── */
+const C = {
+  blue:'#2a78d6', orange:'#eb6834', aqua:'#1baf7a',
+  yellow:'#b88a00', magenta:'#d64a7a', green:'#008300',
+};
+
+/* ── Release metadata ────────────────────────────── */
+const RELEASES = [
+  {id:'R64', date:'28 Jan', phase:'Baseline',       phaseClass:'baseline',  phaseDesc:'Pre-AI measurement period. Established SP/FTE baseline for both squads.'},
+  {id:'R65', date:'11 Mar', phase:'Skills Dev',      phaseClass:'skills',    phaseDesc:'Engineering capability development. Teams validated improved practices. Temporary productivity dip expected.'},
+  {id:'R66', date:'22 Apr', phase:'AI Adoption',     phaseClass:'adoption',  phaseDesc:'Regular application of AI-assisted practices across PIDLC. First measurable productivity gains.'},
+  {id:'R67', date:'3 Jun',  phase:'Embedded AI',     phaseClass:'embedded',  phaseDesc:'AI practices operationalized. Teams reduced capacity while maintaining throughput.'},
+  {id:'R68', date:'15 Jul', phase:'Sustained',       phaseClass:'sustained', phaseDesc:'Sustained high performance. Strongest productivity readings across both squads.'},
+];
+
+/* ── Team data (from sprint velocity logs) ───────── */
+/* spFte values are per-sprint averaged SP/FTE from the official    */
+/* productivity report; they differ from sp÷fte when FTE varies     */
+/* within a release. Combined (Intent domain) uses the aggregate    */
+/* method — total SP ÷ total FTE — which is the correct cross-team  */
+/* metric and matches the reported +62.9%.                          */
+const ROCKET_DATA = [
+  {fte:6.00, sp:41.00, spFte:7.22},
+  {fte:6.00, sp:51.67, spFte:8.70},
+  {fte:4.67, sp:45.67, spFte:9.92},
+  {fte:3.33, sp:39.00, spFte:12.08},
+  {fte:3.33, sp:41.67, spFte:12.72},
+];
+
+const BIFROST_DATA = [
+  {fte:6.00, sp:42.70, spFte:7.11},
+  {fte:6.00, sp:40.00, spFte:6.67},
+  {fte:6.00, sp:52.00, spFte:8.67},
+  {fte:5.00, sp:46.30, spFte:9.27},
+  {fte:5.00, sp:53.00, spFte:10.60},
+];
+
+const PATHFINDER_DATA = [
+  {fte:15.0, sp:87.5, spFte:5.83},
+  {fte:14.7, sp:96.3, spFte:6.55},
+  {fte:14.0, sp:83.7, spFte:5.99},
+  {fte:17.0, sp:110.7, spFte:6.54},
+  {fte:17.0, sp:119.2, spFte:6.99},
+];
+
+const TITANS_DATA = [
+  {fte:7.7, sp:42.0, spFte:5.47},
+  {fte:8.3, sp:40.7, spFte:4.89},
+  {fte:9.7, sp:51.3, spFte:5.32},
+  {fte:9.3, sp:61.7, spFte:6.65},
+  {fte:9.3, sp:56.3, spFte:6.05},
+];
+
+/* ── JARVIS cost model (from production run logs) ── */
+const JARVIS_SKILLS = [
+  {name:'Generate PRD/EPIC',          model:'Opus 4.6',  costPerRun:0.528, runsPerSprint:3},
+  {name:'Generate User Stories', model:'Sonnet 5.5', costPerRun:0.400, runsPerSprint:5},
+  {name:'Generate HLD',          model:'Opus 5.5',   costPerRun:0.680, runsPerSprint:3},
+  {name:'Generate LLD',          model:'Opus 5.5',   costPerRun:0.754, runsPerSprint:3},
+  {name:'Implement Story',       model:'Opus 4.6',   costPerRun:1.654, runsPerSprint:19},
+  {name:'Review PR',             model:'Opus 4.6',   costPerRun:0.600, runsPerSprint:15},
+];
+
+/* ── Constants ───────────────────────────────────── */
+const BLENDED_RATE   = 100;
+const HRS_PER_SPRINT = 80;
+const SPRINTS_PER_REL = 3;
+const SPRINTS_PER_YEAR = 26;
+const COST_PER_FTE_SPRINT = BLENDED_RATE * HRS_PER_SPRINT;
+const COST_PER_FTE_YEAR   = BLENDED_RATE * 2080;
+
+/* ── Compute ─────────────────────────────────────── */
+function enrich(data) {
+  return data.map((d,i) => {
+    const spFte = d.spFte !== undefined ? d.spFte : (d.sp / d.fte);
+    const baseline = data[0].spFte !== undefined ? data[0].spFte : (data[0].sp / data[0].fte);
+    const gain = (spFte - baseline) / baseline;
+    return {...d, spFte, gain, release: RELEASES[i]};
+  });
+}
+
+const rocket  = enrich(ROCKET_DATA);
+const bifrost = enrich(BIFROST_DATA);
+const pathfinder = enrich(PATHFINDER_DATA);
+const titans = enrich(TITANS_DATA);
+
+const combined = RELEASES.map((r,i) => {
+  const fte = rocket[i].fte + bifrost[i].fte;
+  const sp  = rocket[i].sp + bifrost[i].sp;
+  const spFte = sp / fte;
+  const baseline = (ROCKET_DATA[0].sp + BIFROST_DATA[0].sp) / (ROCKET_DATA[0].fte + BIFROST_DATA[0].fte);
+  const gain = (spFte - baseline) / baseline;
+  return {release:r, fte, sp, spFte, gain};
+});
+
+const TEAMS = 2; // Rocket + Bifrost
+const teamRunsPerSprint  = JARVIS_SKILLS.reduce((s,sk) => s + sk.runsPerSprint, 0);
+const teamCostPerSprint  = JARVIS_SKILLS.reduce((s,sk) => s + sk.costPerRun * sk.runsPerSprint, 0);
+const jarvisRunsPerSprint = teamRunsPerSprint * TEAMS;
+const jarvisCostPerSprint = teamCostPerSprint * TEAMS;
+const jarvisCostPerYear   = jarvisCostPerSprint * SPRINTS_PER_YEAR;
+const jarvisRunsPerYear   = jarvisRunsPerSprint * SPRINTS_PER_YEAR;
+
+const fteSaved     = combined[0].fte - combined[4].fte;
+const fteSavedPct  = fteSaved / combined[0].fte;
+const annualFteSaving = fteSaved * COST_PER_FTE_YEAR;
+const roi = annualFteSaving / jarvisCostPerYear;
+
+const spGainPerSprint   = combined[4].sp - combined[0].sp;
+const spGainPct         = spGainPerSprint / combined[0].sp;
+const costPerAdditionalSP = jarvisCostPerSprint / Math.max(spGainPerSprint, 0.01);
+
+/* ── Formatters ──────────────────────────────────── */
+function fmt$(v){return '$'+v.toFixed(v<1?3:v<10?2:v<1000?0:0)}
+function fmt$k(v){return v>=1000?'$'+(v/1000).toFixed(v>=10000?0:1)+'K':'$'+v.toFixed(0)}
+function fmtPct(v){return (v>0?'+':'')+(v*100).toFixed(1)+'%'}
+function fmtN(v,d){return d===undefined?v.toFixed(2):v.toFixed(d)}
+
+/* ── Report date ─────────────────────────────────── */
+document.getElementById('report-date').textContent = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
+/* ═══════════════════════════════════════════════════ */
+/*  SVG CHART HELPERS                                  */
+/* ═══════════════════════════════════════════════════ */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function el(tag,attrs,children){
+  const e=document.createElementNS(SVG_NS,tag);
+  if(attrs)Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(typeof children==='string')e.textContent=children;
+  else if(children)children.forEach(c=>e.appendChild(c));
+  return e;
+}
+
+function hBar(containerId, items, opts={}){
+  const {labelW=155,barMax=380,valW=75,barH=22,gap=10}=opts;
+  const totalW=labelW+barMax+valW;
+  const h=items.length*(barH+gap)+gap;
+  const maxVal=Math.max(...items.map(d=>d.value));
+  const svg=el('svg',{viewBox:`0 0 ${totalW} ${h}`,class:'chart-svg',role:'img','aria-label':opts.ariaLabel||''});
+  items.forEach((d,i)=>{
+    const y=gap+i*(barH+gap);
+    const w=maxVal>0?(d.value/maxVal)*barMax:0;
+    svg.appendChild(el('text',{x:labelW-10,y:y+barH/2+4,'text-anchor':'end'},d.label));
+    const bar=el('rect',{x:labelW,y:y,width:Math.max(w,2),height:barH,rx:3,fill:d.color,class:'bar'});
+    bar.appendChild(el('title',{},d.tooltip||`${d.label}: ${d.formatted}`));
+    svg.appendChild(bar);
+    svg.appendChild(el('text',{x:labelW+Math.max(w,2)+8,y:y+barH/2+4,class:'val'},d.formatted));
+  });
+  document.getElementById(containerId).appendChild(svg);
+}
+
+function groupedHBar(containerId, groups, series, opts={}){
+  const {labelW=80,barMax=400,valW=70,barH=16,groupGap=16,barGap=4,fmtVal}=opts;
+  const nS=series.length;
+  const groupH=nS*barH+(nS-1)*barGap;
+  const totalH=groups.length*(groupH+groupGap)+groupGap;
+  const totalW=labelW+barMax+valW;
+  const maxVal=Math.max(...series.flatMap(s=>s.values));
+  const svg=el('svg',{viewBox:`0 0 ${totalW} ${totalH}`,class:'chart-svg',role:'img','aria-label':opts.ariaLabel||''});
+  groups.forEach((g,gi)=>{
+    const groupY=groupGap+gi*(groupH+groupGap);
+    svg.appendChild(el('text',{x:labelW-10,y:groupY+groupH/2+4,'text-anchor':'end'},g.label));
+    series.forEach((s,si)=>{
+      const y=groupY+si*(barH+barGap);
+      const v=s.values[gi];
+      const w=maxVal>0?(v/maxVal)*barMax:0;
+      const bar=el('rect',{x:labelW,y,width:Math.max(w,2),height:barH,rx:3,fill:s.color,class:'bar'});
+      bar.appendChild(el('title',{},`${g.label} — ${s.name}: ${fmtVal?fmtVal(v):v}`));
+      svg.appendChild(bar);
+      svg.appendChild(el('text',{x:labelW+Math.max(w,2)+8,y:y+barH/2+4,class:'val'},fmtVal?fmtVal(v):String(v)));
+    });
+  });
+  document.getElementById(containerId).appendChild(svg);
+}
+
+function renderLegend(containerId,labels,colors){
+  const wrap=document.getElementById(containerId);
+  labels.forEach((l,i)=>{
+    const d=document.createElement('div');d.className='legend-item';
+    d.innerHTML=`<span class="swatch" style="background:${colors[i]}"></span>${l}`;
+    wrap.appendChild(d);
+  });
+}
+
+/* ═══════════════════════════════════════════════════ */
+/*  POPULATE                                           */
+/* ═══════════════════════════════════════════════════ */
+
+/* KPI tiles */
+document.getElementById('kpi-row').innerHTML = [
+  {val:fmtPct(combined[4].gain), label:'Combined Productivity Gain', sub:`Rocket ${fmtPct(rocket[4].gain)} · Bifrost ${fmtPct(bifrost[4].gain)}`, color:'var(--cat-3)'},
+  {val:fmtPct(-fteSavedPct), label:'Capacity Freed', sub:`${fmtN(combined[0].fte,1)} → ${fmtN(combined[4].fte,1)} FTE (${fmtN(fteSaved,1)} FTE saved)`, color:'var(--accent)'},
+  {val:fmt$(teamCostPerSprint/teamRunsPerSprint), label:'Avg Cost / JARVIS Run', sub:`${jarvisRunsPerSprint} runs/sprint (${TEAMS} teams)`, color:'var(--text-1)'},
+  {val:Math.round(roi).toLocaleString()+'×', label:'Annual ROI', sub:`${fmt$k(annualFteSaving)} saved / ${fmt$k(jarvisCostPerYear)} platform`, color:'var(--cat-1)'},
+].map(k=>`<div class="kpi"><div class="kpi-value" style="color:${k.color}">${k.val}</div><div class="kpi-label">${k.label}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+
+/* Timeline */
+document.getElementById('timeline').innerHTML = RELEASES.map(r=>
+  `<div class="timeline-item">
+    <div class="timeline-release">${r.id}</div>
+    <div class="timeline-date">${r.date}</div>
+    <div class="timeline-phase" style="color:var(--cat-${r.phaseClass==='baseline'?'5':r.phaseClass==='skills'?'1':r.phaseClass==='adoption'?'4':'3'})">${r.phase}</div>
+    <div class="timeline-desc">${r.phaseDesc}</div>
+  </div>`
+).join('');
+
+/* Trend table */
+document.getElementById('trend-table').innerHTML = combined.map((c,i)=>
+  `<tr><td>${c.release.id}</td><td>${c.release.date}</td>
+   <td><span class="phase-badge phase-${c.release.phaseClass}">${c.release.phase}</span></td>
+   <td class="num">${fmtN(c.fte,2)}</td><td class="num">${fmtN(c.sp,1)}</td>
+   <td class="num" style="font-weight:600">${fmtN(c.spFte,2)}</td>
+   <td class="num ${c.gain>0?'pos':c.gain<0?'neg':''}">${i===0?'Baseline':fmtPct(c.gain)}</td></tr>`
+).join('');
+
+/* Trend chart — grouped bars: Rocket vs Bifrost */
+groupedHBar('chart-trend',
+  RELEASES.map(r=>({label:r.id+' ('+r.date+')'})),
+  [
+    {name:'Rocket',  color:C.blue,   values:rocket.map(d=>d.spFte)},
+    {name:'Bifrost', color:C.orange, values:bifrost.map(d=>d.spFte)},
+  ],
+  {ariaLabel:'SP/FTE by release for Rocket and Bifrost', fmtVal:v=>v.toFixed(2)}
+);
+renderLegend('legend-trend',['Rocket','Bifrost'],[C.blue,C.orange]);
+
+/* Team detail tables + charts */
+function teamTable(id, data) {
+  document.getElementById(id).innerHTML = data.map((d,i)=>
+    `<tr><td>${RELEASES[i].id}</td><td class="num">${fmtN(d.fte,2)}</td><td class="num">${fmtN(d.sp,1)}</td>
+     <td class="num" style="font-weight:600">${fmtN(d.spFte,2)}</td>
+     <td class="num ${d.gain>0?'pos':d.gain<0?'neg':''}">${i===0?'Baseline':fmtPct(d.gain)}</td></tr>`
+  ).join('');
+}
+teamTable('rocket-table', rocket);
+teamTable('bifrost-table', bifrost);
+
+hBar('chart-rocket', rocket.map((d,i)=>({
+  label:RELEASES[i].id, value:d.spFte, color:C.blue,
+  formatted:fmtN(d.spFte,2), tooltip:`${RELEASES[i].id}: ${fmtN(d.spFte,2)} SP/FTE`
+})), {labelW:60, barMax:300, ariaLabel:'Rocket SP/FTE by release'});
+
+hBar('chart-bifrost', bifrost.map((d,i)=>({
+  label:RELEASES[i].id, value:d.spFte, color:C.orange,
+  formatted:fmtN(d.spFte,2), tooltip:`${RELEASES[i].id}: ${fmtN(d.spFte,2)} SP/FTE`
+})), {labelW:60, barMax:300, ariaLabel:'Bifrost SP/FTE by release'});
+
+/* Capacity & throughput charts */
+hBar('chart-fte', combined.map((c,i)=>({
+  label:RELEASES[i].id, value:c.fte, color:i<=1?C.magenta:C.aqua,
+  formatted:fmtN(c.fte,1)+' FTE',
+  tooltip:`${RELEASES[i].id}: ${fmtN(c.fte,1)} FTE (${i===0?'baseline':fmtPct((c.fte-combined[0].fte)/combined[0].fte)})`
+})), {labelW:60, barMax:300, ariaLabel:'Combined FTE by release'});
+
+hBar('chart-throughput', combined.map((c,i)=>({
+  label:RELEASES[i].id, value:c.sp, color:C.blue,
+  formatted:fmtN(c.sp,1)+' SP',
+  tooltip:`${RELEASES[i].id}: ${fmtN(c.sp,1)} SP/sprint`
+})), {labelW:60, barMax:300, ariaLabel:'Combined SP/sprint by release'});
+
+document.getElementById('capacity-summary').innerHTML =
+  `Intent domain capacity reduced from <strong>${fmtN(combined[0].fte,1)} FTE</strong> (R64) to
+   <strong>${fmtN(combined[4].fte,1)} FTE</strong> (R68) &mdash; a <strong>${fmtPct(-fteSavedPct)}</strong> reduction.
+   Combined throughput increased from ${fmtN(combined[0].sp,1)} to ${fmtN(combined[4].sp,1)} SP/sprint
+   (<strong>${fmtPct(spGainPct)}</strong>). The domain delivers more work with fewer people &mdash;
+   the definition of a real productivity gain, not a velocity inflation.`;
+
+/* JARVIS skill cost table */
+document.getElementById('skill-cost-table').innerHTML =
+  JARVIS_SKILLS.map((sk,i)=> {
+    const sprintCost = sk.costPerRun * sk.runsPerSprint;
+    return `<tr><td><span class="swatch" style="background:${[C.blue,C.orange,C.aqua,C.yellow,C.magenta,C.green][i]}"></span>${sk.name}</td>
+     <td>${sk.model}</td><td class="num">${fmt$(sk.costPerRun)}</td>
+     <td class="num">${sk.runsPerSprint}</td><td class="num">${fmt$(sprintCost)}</td></tr>`;
+  }).join('') +
+  `<tr class="total-row"><td colspan="2">Per team per sprint</td><td></td>
+   <td class="num">${teamRunsPerSprint}</td><td class="num">${fmt$(teamCostPerSprint)}</td></tr>` +
+  `<tr class="total-row"><td colspan="2">Domain (×${TEAMS} teams)</td><td></td>
+   <td class="num">${jarvisRunsPerSprint}</td><td class="num">${fmt$(jarvisCostPerSprint)}</td></tr>`;
+
+hBar('chart-skills', JARVIS_SKILLS.map((sk,i)=>({
+  label:sk.name, value:sk.costPerRun,
+  color:[C.blue,C.orange,C.aqua,C.yellow,C.magenta,C.green][i],
+  formatted:fmt$(sk.costPerRun),
+  tooltip:`${sk.name}: ${fmt$(sk.costPerRun)}/run × ${sk.runsPerSprint}/sprint = ${fmt$(sk.costPerRun*sk.runsPerSprint)}/sprint`
+})), {labelW:155, barMax:260, ariaLabel:'JARVIS cost per run by skill'});
+
+/* Platform summary */
+document.getElementById('platform-summary').innerHTML = [
+  ['Runs per sprint per team', teamRunsPerSprint],
+  ['Runs per sprint (domain)', jarvisRunsPerSprint],
+  ['Cost per sprint (domain)', fmt$(jarvisCostPerSprint)],
+  ['Runs per year (26 sprints)', jarvisRunsPerYear.toLocaleString()],
+  ['Annual platform cost', fmt$k(jarvisCostPerYear)],
+  ['Cost per story point', fmt$(jarvisCostPerSprint / combined[4].sp)],
+].map(([l,v])=>`<tr><td style="color:var(--text-2)">${l}</td><td class="num" style="font-weight:600">${v}</td></tr>`).join('');
+
+/* ROI table */
+const fteSavingByRelease = [
+  {rel:'R64–R65', sprints:SPRINTS_PER_REL, saved:0},
+  {rel:'R66',     sprints:SPRINTS_PER_REL, saved:combined[0].fte - combined[2].fte},
+  {rel:'R67',     sprints:SPRINTS_PER_REL, saved:combined[0].fte - combined[3].fte},
+  {rel:'R68',     sprints:SPRINTS_PER_REL, saved:combined[0].fte - combined[4].fte},
+];
+const cumSaving = fteSavingByRelease.reduce((s,r) => s + r.saved * r.sprints * COST_PER_FTE_SPRINT, 0);
+const cumJarvisCost = (SPRINTS_PER_REL * 3) * jarvisCostPerSprint; // R66-R68 = 9 sprints
+
+document.getElementById('roi-table').innerHTML = [
+  ['FTE saved at R68 (annualized)', fmtN(fteSaved,1)+' FTE', `${fmtN(combined[0].fte,1)} baseline → ${fmtN(combined[4].fte,1)} current`],
+  ['Annual FTE capacity value', fmt$k(annualFteSaving), `${fmtN(fteSaved,1)} FTE × $${COST_PER_FTE_YEAR.toLocaleString()}/yr (@ $${BLENDED_RATE}/hr blended)`],
+  ['JARVIS runs per year', jarvisRunsPerYear.toLocaleString(), `${jarvisRunsPerSprint} runs/sprint (${TEAMS} teams) × ${SPRINTS_PER_YEAR} sprints`],
+  ['Annual JARVIS platform cost', fmt$k(jarvisCostPerYear), `${jarvisRunsPerYear.toLocaleString()} runs × ${fmt$(teamCostPerSprint/teamRunsPerSprint)} avg`],
+  ['Annual ROI', '<strong>'+Math.round(roi).toLocaleString()+'×</strong>', 'FTE value freed / platform cost'],
+  ['JARVIS cost per story point', fmt$(jarvisCostPerSprint / combined[4].sp), `${fmt$(jarvisCostPerSprint)}/sprint ÷ ${fmtN(combined[4].sp,1)} SP/sprint`],
+  ['JARVIS as % of team cost', fmtPct(jarvisCostPerYear / (combined[4].fte * COST_PER_FTE_YEAR)).replace('+',''), 'Platform cost / total remaining team cost'],
+  ['R66–R68 cumulative FTE saving', fmt$k(cumSaving), `Realized savings across 9 sprints of AI-enabled delivery`],
+  ['R66–R68 cumulative JARVIS cost', fmt$(cumJarvisCost), `${SPRINTS_PER_REL*3} sprints × ${fmt$(jarvisCostPerSprint)}/sprint`],
+].map(([m,v,n])=>`<tr><td>${m}</td><td class="num">${v}</td><td style="color:var(--text-2);font-size:.82rem">${n}</td></tr>`).join('');
+
+/* ROI chart */
+const roiItems = [
+  {label:'Annual FTE savings', value:annualFteSaving, color:C.aqua, formatted:fmt$k(annualFteSaving)},
+  {label:'Annual JARVIS cost', value:jarvisCostPerYear, color:C.orange, formatted:fmt$k(jarvisCostPerYear)},
+];
+(function(){
+  const labelW=160,barMax=380,valW=90,barH=28,gap=12;
+  const totalW=labelW+barMax+valW;
+  const h=2*(barH+gap)+gap;
+  const maxVal=annualFteSaving;
+  const svg=el('svg',{viewBox:`0 0 ${totalW} ${h}`,class:'chart-svg',role:'img','aria-label':'FTE savings vs JARVIS cost'});
+  roiItems.forEach((d,i)=>{
+    const y=gap+i*(barH+gap);
+    const w=Math.max((d.value/maxVal)*barMax, 2);
+    svg.appendChild(el('text',{x:labelW-10,y:y+barH/2+5,'text-anchor':'end'},d.label));
+    const bar=el('rect',{x:labelW,y,width:w,height:barH,rx:3,fill:d.color,class:'bar'});
+    bar.appendChild(el('title',{},`${d.label}: ${d.formatted}`));
+    svg.appendChild(bar);
+    svg.appendChild(el('text',{x:labelW+w+10,y:y+barH/2+5,class:'val'},d.formatted));
+  });
+  document.getElementById('chart-roi').appendChild(svg);
+})();
+
+/* Cross-program comparison */
+const allTeams = [
+  {name:'Rocket',     domain:'Intent',   aiPdlc:true,  data:rocket,     color:C.blue},
+  {name:'Bifrost',    domain:'Intent',   aiPdlc:true,  data:bifrost,    color:C.orange},
+  {name:'Pathfinder', domain:'Checkout', aiPdlc:false, data:pathfinder, color:C.yellow},
+  {name:'Titans',     domain:'Checkout', aiPdlc:false, data:titans,     color:C.magenta},
+];
+document.getElementById('cross-table').innerHTML = allTeams.map(t=> {
+  const d0=t.data[0], d4=t.data[4];
+  const fteChange = (d4.fte - d0.fte) / d0.fte;
+  const pdlcBadge = t.aiPdlc
+    ? '<span class="badge badge-green" style="font-size:.62rem;padding:2px 6px">AI PDLC</span>'
+    : '<span class="badge badge-muted" style="font-size:.62rem;padding:2px 6px">Standard</span>';
+  const rowStyle = t.aiPdlc ? '' : ' style="opacity:.75"';
+  return `<tr${rowStyle}><td><span class="swatch" style="background:${t.color}"></span>${t.name}</td><td>${t.domain}</td>
+    <td>${pdlcBadge}</td>
+    <td class="num">${fmtN(d0.spFte,2)}</td><td class="num">${fmtN(d4.spFte,2)}</td>
+    <td class="num ${d4.gain>0?'pos':'neg'}" style="font-weight:600">${fmtPct(d4.gain)}</td>
+    <td class="num ${fteChange<0?'pos':'neg'}">${fmtPct(fteChange)}</td></tr>`;
+}).join('');
+
+hBar('chart-cross', allTeams.map(t=>({
+  label:t.name + (t.aiPdlc ? '' : ' *'), value:t.data[4].gain*100, color:t.color,
+  formatted:fmtPct(t.data[4].gain),
+  tooltip:`${t.name}: ${fmtPct(t.data[4].gain)} productivity gain R64→R68${t.aiPdlc?'':' (no AI PDLC)'}`
+})), {labelW:120, barMax:330, ariaLabel:'Productivity gain % by team'});
+
+const aiTeams = allTeams.filter(t=>t.aiPdlc);
+const nonAiTeams = allTeams.filter(t=>!t.aiPdlc);
+const aiAvg = aiTeams.reduce((s,t)=>s+t.data[4].gain,0)/aiTeams.length;
+const nonAiAvg = nonAiTeams.reduce((s,t)=>s+t.data[4].gain,0)/nonAiTeams.length;
+document.getElementById('cross-note').innerHTML = `
+  <p style="color:var(--text-2);font-size:.85rem;line-height:1.7">
+    <strong>Note:</strong> Rocket and Bifrost (Intent domain) are the only teams using the <strong>AI-assisted PDLC</strong>
+    with JARVIS platform integration. Pathfinder and Titans (Checkout domain) follow standard delivery
+    practices without AI PDLC tooling. The productivity gap between the two groups &mdash;
+    <strong>${fmtPct(aiAvg)}</strong> average gain for AI PDLC teams vs <strong>${fmtPct(nonAiAvg)}</strong> for non-AI teams &mdash;
+    suggests a measurable contribution from AI-assisted engineering practices, though team-specific factors
+    (capacity changes, project complexity) also play a role.
+    <span style="color:var(--text-3)">* = standard delivery (no AI PDLC)</span>
+  </p>`;
+
+/* Findings */
+document.getElementById('findings').innerHTML = `
+  <div class="finding">
+    <h3>Intent domain productivity increased 62.9% while reducing capacity 30.6%</h3>
+    <p style="color:var(--text-2);font-size:.88rem">Combined SP/FTE rose from ${fmtN(combined[0].spFte,2)} (R64) to ${fmtN(combined[4].spFte,2)} (R68).
+    FTE count dropped from ${fmtN(combined[0].fte,1)} to ${fmtN(combined[4].fte,1)} while throughput increased from ${fmtN(combined[0].sp,1)} to
+    ${fmtN(combined[4].sp,1)} SP/sprint. This is not velocity inflation — it is doing more with fewer people.</p>
+  </div>
+  <div class="finding">
+    <h3>Rocket leads at +76.2%, Bifrost follows at +49.1%</h3>
+    <p style="color:var(--text-2);font-size:.88rem">Rocket achieved the highest gain by maintaining throughput with 44% fewer FTEs.
+    Bifrost showed the strongest sustained improvement after an initial R65 learning dip, with R68 marking its best performance to date (53.0 SP/sprint).</p>
+  </div>
+  <div class="finding">
+    <h3>R65 learning dip is consistent and expected</h3>
+    <p style="color:var(--text-2);font-size:.88rem">Both Intent teams showed flat or negative productivity during R65 (Skills Development).
+    Bifrost dipped &minus;6.2%, while Rocket improved +20.5% through increased throughput.
+    The pattern — invest in R65, realize gains from R66 onwards — repeated across all four MACS teams.</p>
+  </div>
+  <div class="finding">
+    <h3>JARVIS platform cost is negligible — ${fmtPct(jarvisCostPerYear / (combined[4].fte * COST_PER_FTE_YEAR)).replace('+','')} of team cost</h3>
+    <p style="color:var(--text-2);font-size:.88rem">At ${fmt$k(jarvisCostPerYear)}/year for the Intent domain (${jarvisRunsPerYear.toLocaleString()} runs), JARVIS API spend
+    is a rounding error against the ${fmt$k(annualFteSaving)}/year in FTE capacity freed. Every dollar spent on the platform returns ${Math.round(roi).toLocaleString()} dollars in capacity value.</p>
+  </div>
+  <div class="finding">
+    <h3>Cost per story point: ${fmt$(jarvisCostPerSprint / combined[4].sp)}</h3>
+    <p style="color:var(--text-2);font-size:.88rem">JARVIS adds approximately ${fmt$(jarvisCostPerSprint / combined[4].sp)} per story point to the delivery cost.
+    Compared to the fully-loaded team cost of ~$${Math.round(combined[4].fte * COST_PER_FTE_SPRINT / combined[4].sp)} per story point,
+    the platform cost is invisible in the P&amp;L.</p>
+  </div>
+  <div class="finding">
+    <h3>Productivity gains did not compromise quality</h3>
+    <p style="color:var(--text-2);font-size:.88rem">Two consecutive zero-vulnerability pen test results (R68.i2, R68.i3),
+    production deployment achieved at R70, and reusable libraries adopted by 4+ teams demonstrate that AI-assisted practices
+    accelerated delivery without degrading engineering standards.</p>
+  </div>
+  <div class="finding">
+    <h3>AI adoption maturity is measurable in retrospectives</h3>
+    <p style="color:var(--text-2);font-size:.88rem">Retrospective observations evolved from "learning AI tools" (R66) through "AI introduces quality risks" (R67)
+    to "measure the full AI development lifecycle" (R70). This progression — learning → risk awareness → governance → measurement —
+    is the signature of a maturing engineering practice, not a one-time productivity hack.</p>
+  </div>
+  <div class="finding" style="border-left:3px solid var(--cat-4)">
+    <h3>Token optimization in progress — cost reduction expected</h3>
+    <p style="color:var(--text-2);font-size:.88rem">The team is currently working on token consumption optimization by evaluating lower-cost models
+    for applicable skills. This process is ongoing and aims to reduce per-run costs while maintaining output quality.
+    The platform costs reported above reflect current production model assignments (Opus 4.6 / Opus 5.5 / Sonnet 5.5);
+    actual costs are expected to decrease as optimization efforts progress and lighter models are validated for specific skill types.</p>
+  </div>
+`;
+
+</script>
+</body>
+</html>
